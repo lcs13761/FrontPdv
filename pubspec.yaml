@@ -1,0 +1,40 @@
+name: lustore
+version: 1.0.0+1
+publish_to: none
+description: A new Flutter project.
+environment: 
+  sdk: '>=2.12.0 <3.0.0'
+
+dependencies: 
+  cupertino_icons: ^1.0.2
+  get: ^4.1.4
+  desktop_window: 0.4.0
+  sizer: 2.0.13
+  image_picker: 0.8.4
+  brasil_fields: 1.1.4
+  http: 0.13.3
+  get_storage: ^2.0.3
+  flutter_masked_text: ^0.8.0
+  flutter_easyloading: ^3.0.3
+  intl: ^0.17.0
+  jwt_decoder: 2.0.1
+  jaguar_jwt: 3.0.0
+  flutter_staggered_grid_view: 0.4.0
+  syncfusion_flutter_charts: 19.2.62
+  file_picker: 4.1.0
+  flutter: 
+    sdk: flutter
+
+dev_dependencies: 
+  flutter_lints: ^1.0.0
+  flutter_test: 
+    sdk: flutter
+
+flutter: 
+  assets: 
+    - images/logo.png
+  uses-material-design: true
+
+get_cli: 
+  sub_folder: false
+
