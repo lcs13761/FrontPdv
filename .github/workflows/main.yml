@@ -1,3 +1,4 @@
+
 name: CI	
 
 on: [push, pull_request]	
@@ -72,6 +73,3 @@ jobs:
         flutter packages get	
         flutter build -v ${{matrix.TARGET}} --release	
       working-directory: ${{ github.workspace }}/fde/plugins/file_selector/example
-        flutter packages get	
-        flutter build -v windows --release	
-      working-directory: ${{ github.workspace }}/flutter-desktop-embedding/testbed
