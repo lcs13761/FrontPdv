@@ -1,6 +1,6 @@
 # LuStore
 
-#Pdv Desktop
+Pdv Desktop
 
 ### the program is still under development, but it already has some features. developed using desktop flutter, with connection in an api.
 
