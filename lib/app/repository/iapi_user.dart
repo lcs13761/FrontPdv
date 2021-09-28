@@ -1,7 +1,7 @@
 
 abstract class IApiUser{
 
-  Future<dynamic> login();
+  Future<dynamic> loginAdmin();
   Future<dynamic> refreshJwt();
   Future<dynamic> logout();
 

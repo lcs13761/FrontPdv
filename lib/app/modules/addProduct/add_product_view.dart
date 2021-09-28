@@ -219,7 +219,7 @@ class AddProductView extends GetView<AddProductController> {
           return const Text("");
         }
         return Container(
-          margin: EdgeInsets.only(top: 10),
+          margin: const EdgeInsets.only(top: 10),
           alignment: Alignment.centerLeft,
           child: controller.updatePrt.isFalse
               ? Image.file(

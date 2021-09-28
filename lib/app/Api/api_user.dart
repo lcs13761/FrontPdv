@@ -27,6 +27,7 @@ class ApiUser implements IApiUser{
     }
   }
 
+  @override
   Future<dynamic> refreshJwt() async {
     var token = store.read("token");
     if (token == null) {
@@ -59,6 +60,7 @@ class ApiUser implements IApiUser{
     }
   }
 
+  @override
   Future<dynamic> logout() async {
     String token = await refreshJwt();
     final response = await http.post(
@@ -72,4 +74,6 @@ class ApiUser implements IApiUser{
       return jsonDecode(response.body);
     }
   }
+
+
 }
