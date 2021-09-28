@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:lustore/app/Api/api_user.dart';
 import 'package:lustore/model/sale.dart';
 
-class ApiSales extends ApiUser {
+abstract class ApiSales extends ApiUser {
 
 
   Future<dynamic> getSales(String token) async {

@@ -3,8 +3,9 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:lustore/app/repository/IApi_user.dart';
 
-abstract class ApiUser {
+class ApiUser implements IApiUser{
   final store = GetStorage();
   static String url = "http://127.0.0.1:8000/api/";
   Jwt jwt = Jwt();
