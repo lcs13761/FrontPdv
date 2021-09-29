@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
-import 'dart:io';
 import 'package:get_storage/get_storage.dart';
+import 'package:lustore/app/api/api_user.dart';
 import 'package:lustore/app/modules/home/home_controller.dart';
 
 
@@ -39,9 +40,6 @@ class Sidebar {
                 containerSidebar(Icons.assessment_outlined, "Relatórios",
                     colorActive: active == "reports" ? true : false,
                     route: "/reports"),
-                containerSidebar(Icons.access_time, "Histórico",
-                    colorActive: active == "historic" ? true : false,
-                    route: "/historic-sales"),
                 containerSidebar(Icons.brightness_5_rounded, "Configuração",
                     colorActive: active == "config" ? true : false,
                     route: "/config"),
@@ -56,11 +54,11 @@ class Sidebar {
     return InkWell(
       onTap: () async {
         if (text == "Sair") {
-          if (store.read("sales") != null) {
-            controller.removeAll();
-            await 1.delay();
-          }
-          exit(0);
+          controller.removeAll();
+          controller.store.erase();
+          await ApiUser().logout();
+          await EasyLoading.dismiss();
+          Get.offNamed("/login");
         } else {
           Get.offNamed(route);
         }

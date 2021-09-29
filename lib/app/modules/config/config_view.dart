@@ -12,7 +12,7 @@ class ConfigView extends GetView<ConfigController> {
   Widget build(BuildContext context) {
     Sidebar sidebar = Sidebar();
     return Scaffold(
-      backgroundColor: Color.fromRGBO(204, 204, 204, 1),
+      backgroundColor: const Color.fromRGBO(204, 204, 204, 1),
       body: Row(
         children: <Widget>[
           sidebar.side("config"),

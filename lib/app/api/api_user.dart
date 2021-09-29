@@ -11,6 +11,7 @@ class ApiUser implements IApiUser{
   Jwt jwt = Jwt();
 
 
+  @override
   Future<dynamic> loginAdmin() async {
     var token = jwt.senderCreatesJwt();
     var data = {"token": token};

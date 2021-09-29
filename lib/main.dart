@@ -4,6 +4,7 @@ import 'app/routes/app_pages.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() async {
   await GetStorage.init();
@@ -11,6 +12,11 @@ void main() async {
   configLoading();
   runApp(
     GetMaterialApp(
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate
+      ],
+      supportedLocales: const [ Locale('pt', 'BR')],
       title: "Application",
       theme: ThemeData(
         backgroundColor: const Color.fromRGBO(204, 204, 204, 1),

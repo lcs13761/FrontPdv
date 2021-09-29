@@ -4,8 +4,7 @@ import 'dart:convert';
 import 'package:lustore/app/Api/api_user.dart';
 import 'package:lustore/model/sale.dart';
 
-abstract class ApiSales extends ApiUser {
-
+ class ApiSales extends ApiUser {
 
   Future<dynamic> getSales(String token) async {
     final response = await http.get(
@@ -21,38 +20,8 @@ abstract class ApiSales extends ApiUser {
       return jsonDecode(response.body);
     }
   }
-  Future<dynamic> getSalesFinalised() async {
-    String token = await refreshJwt();
-    final response = await http.get(
-      Uri.parse(ApiUser.url + "allSalesYear"),
-      headers: <String, String>{
-        'Authorization': 'Bearer ' + token
-      },
-    );
 
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      return jsonDecode(response.body);
-    }
-  }
-  Future<dynamic> getHistoric() async {
-    String token = await refreshJwt();
-    final response = await http.get(
-      Uri.parse(ApiUser.url + "allSalesFinalised"),
-      headers: <String, String>{
-        'Authorization': 'Bearer ' + token
-      },
-    );
-
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      return jsonDecode(response.body);
-    }
-  }
-
-  Future<dynamic> getSaleProduct(Sale data) async {
+  Future<dynamic> createSaleProduct(Sale data) async {
     String token = await refreshJwt();
     final response = await http.post(
       Uri.parse(ApiUser.url + "sale"),
@@ -140,6 +109,7 @@ abstract class ApiSales extends ApiUser {
       return jsonDecode(response.body);
     }
   }
+
   Future<dynamic> saveSales(Sale data) async {
     String token = await refreshJwt();
     final response = await http.post(
@@ -154,7 +124,25 @@ abstract class ApiSales extends ApiUser {
     if (response.statusCode == 200) {
       return  true;
     } else {
-      return jsonDecode(response.body);
+      return jsonDecode(jsonEncode(response.body));
     }
   }
 }
+
+//  Future<dynamic> getProductForExchangeAndReturn(data) async{
+//     String token = await refreshJwt();
+//     final response = await http.post(
+//       Uri.parse(ApiUser.url + "exchangeProductLastSale"),
+//       headers: <String, String>{
+//         'Content-Type': 'application/json; charset=UTF-8',
+//         'Authorization': 'Bearer ' + token
+//       },
+//       body: jsonEncode(data),
+//     );
+//
+//     if (response.statusCode == 200) {
+//       return jsonDecode(response.body);
+//     } else {
+//       return jsonDecode(response.body);
+//     }
+//   }

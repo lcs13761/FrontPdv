@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -7,14 +5,17 @@ import 'package:intl/intl.dart';
 import 'package:lustore/model/product.dart';
 import 'package:lustore/model/sale.dart';
 import 'package:flutter/material.dart';
+import 'package:desktop_window/desktop_window.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:flutter_masked_text/flutter_masked_text.dart';
 import 'package:lustore/model/user.dart';
+import 'dart:ui' as ui;
 
 
 class HomeController extends GetxController {
-  TextEditingController client = TextEditingController();
+  TextEditingController codeSaleOrClient = TextEditingController();
   TextEditingController code = TextEditingController();
+  TextEditingController client = TextEditingController();
   TextEditingController qts = TextEditingController();
   TextEditingController valueDiscount = TextEditingController();
   NumberFormat formatter = NumberFormat.simpleCurrency();
@@ -34,6 +35,7 @@ class HomeController extends GetxController {
   );
   final store = GetStorage();
   RxList allProductSales = [].obs;
+  RxList resultSearchProductSaleExchangeAndReturn = [].obs;
   RxDouble subTotal = 0.0.obs;
   RxDouble total = 0.0.obs;
   String idSales = "";
@@ -45,18 +47,23 @@ class HomeController extends GetxController {
   RxString nameProduct = "".obs;
   RxString codeProduct = "".obs;
   RxString sizeProduct = "".obs;
+  RxMap productSelectExchange = {}.obs;
   RxInt updateQts = 1.obs;
 
 
 
   @override
-  void onInit() {
+  void onInit() async{
     super.onInit();
-    if (store.read("sales").length != 0) {
+    await DesktopWindow.setFullScreen(true);
+    await DesktopWindow.setMinWindowSize(ui.window.physicalSize);
+
+
+    if (store.read("sales").toString().isEmpty) {
       allProductSales.addAll(store.read("sales"));
       calcSaleNow();
     }
-    if(store.read("client") != null){
+    if(store.read("client").toString().isEmpty){
         client.text = store.read("client");
     }
     qts.text = "1";
@@ -109,7 +116,7 @@ class HomeController extends GetxController {
     }
     sale.product = Product(code: code.text,qts: int.parse(qts.text));
     sale.client = client.text.toString();
-    var response = await sale.getSaleProduct(sale);
+    var response = await sale.createSaleProduct(sale);
     if (response["result"].length != 0) {
       store.remove("sales");
       store.write("sales", response["result"]);
@@ -152,7 +159,6 @@ class HomeController extends GetxController {
       await EasyLoading.dismiss();
       return;
     }
-
     var response = await sale.update(sale,idSales);
     if (response["result"].length != 0) {
       store.remove("sales");
@@ -170,6 +176,8 @@ class HomeController extends GetxController {
     await EasyLoading.show(
       maskType: EasyLoadingMaskType.custom,
     );
+    sale.client = client.text;
+
     var verified = await sale.saveSales(sale);
     if (verified == true) {
       store.remove("sales");
@@ -228,3 +236,20 @@ class HomeController extends GetxController {
 
 
 }
+// void exchangeAndReturn() async{
+//     await EasyLoading.show(
+//       maskType: EasyLoadingMaskType.custom,
+//     );
+//
+//     var data = {
+//       "codeSales" : codeSaleOrClient.text,
+//     };
+//
+//     var response = await sale.getProductForExchangeAndReturn(data);
+//
+//     if(response["result"].length != 0){
+//       resultSearchProductSaleExchangeAndReturn.clear();
+//       resultSearchProductSaleExchangeAndReturn.addAll(response["result"]);
+//     }
+//     await EasyLoading.dismiss();
+//   }

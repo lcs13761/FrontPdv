@@ -22,4 +22,6 @@ class Sale extends ApiSales{
       "discount" : discount,
     };
   }
+
+
 }

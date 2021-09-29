@@ -23,13 +23,14 @@ class HomeView extends GetView<HomeController> {
               Get.back();
               dialogDiscount();
             }
+
             if (event.isKeyPressed(LogicalKeyboardKey.f2)) {
               Get.back();
               confirmSale();
             }
             if (event.isKeyPressed(LogicalKeyboardKey.escape)) {
               Get.back();
-             canceledSales();
+              canceledSales();
             }
           }
         },
@@ -37,7 +38,7 @@ class HomeView extends GetView<HomeController> {
           children: <Widget>[
             sidebar.side("sale"),
             Expanded(
-              child: bodySales(),
+              child: bodySales(context),
             ),
             Container(
               height: 1000,
@@ -63,7 +64,8 @@ class HomeView extends GetView<HomeController> {
       ),
     );
   }
-  void canceledSales(){
+
+  void canceledSales() {
     Get.dialog(
       AlertDialog(
         content: const SingleChildScrollView(
@@ -146,7 +148,7 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  Widget bodySales() {
+  Widget bodySales(context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -206,7 +208,7 @@ class HomeView extends GetView<HomeController> {
         titleListProduct(),
         const Divider(height: 1),
         Expanded(child: resultSearch()),
-        footerSales(),
+        footerSales(context),
       ],
     );
   }
@@ -221,52 +223,6 @@ class HomeView extends GetView<HomeController> {
           margin: const EdgeInsets.only(top: 10, right: 15),
           child: type,
         ),
-      ),
-    );
-  }
-
-  void confirmSale() {
-    Get.dialog(
-      AlertDialog(
-        content: const SingleChildScrollView(
-          child: Text(
-            "Deseja Finalizar a venda?",
-            style: TextStyle(
-              fontSize: 22,
-              letterSpacing: 1,
-            ),
-          ),
-        ),
-        actions: <Widget>[
-          Container(
-            margin: const EdgeInsets.only(bottom: 10),
-            child: TextButton(
-              onPressed: () {
-                Get.back();
-              },
-              child: const Text(
-                "Cancelar",
-                style: TextStyle(fontSize: 22),
-              ),
-            ),
-          ),
-          Container(
-            margin: const EdgeInsets.only(bottom: 10),
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(60, 45),
-                  primary: const Color.fromRGBO(0, 103, 254, 1)),
-              onPressed: () {
-                controller.confirmSales();
-                Get.back();
-              },
-              child: const Text(
-                "CONFIRMAR",
-                style: TextStyle(fontSize: 22),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -293,8 +249,10 @@ class HomeView extends GetView<HomeController> {
                     calc: true);
                 controller.nameProduct.value =
                     controller.allProductSales[index]["product"].toString();
-                controller.image.value =
-                    controller.allProductSales[index]["image"].toString();
+             if(controller.allProductSales[index]["image"] != null){
+               controller.image.value =
+                   controller.allProductSales[index]["image"].toString();
+             }
                 controller.sizeProduct.value =
                     controller.allProductSales[index]["size"].toString();
                 controller.codeProduct.value =
@@ -310,14 +268,14 @@ class HomeView extends GetView<HomeController> {
 
   Widget titleListProduct() {
     return Container(
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.white.withOpacity(0.8),
-            // changes position of shadow
-          ),
-        ],
+      decoration: const BoxDecoration(
+        color: Color(0xFFF5F5F5),
+        // boxShadow: [
+        //   BoxShadow(
+        //     color: Colors.white.withOpacity(0.8),
+        //     // changes position of shadow
+        //   ),
+        // ],
       ),
       height: 60,
       padding: const EdgeInsets.only(left: 10),
@@ -402,9 +360,9 @@ class HomeView extends GetView<HomeController> {
                       controller.allProductSales[index]["saleValue"].toString(),
                     );
                     controller.valueProduct.value =
-                        controller.allProductSales[index]["saleValue"];
+                      double.parse(controller.allProductSales[index]["saleValue"].toString());
                     controller.saleValuesFinal.value =
-                        controller.allProductSales[index]["saleValue"];
+                        double.parse(controller.allProductSales[index]["saleValue"].toString());
                     controller.discountGroup.text = controller
                         .allProductSales[index]["discount"]
                         .toString();
@@ -676,7 +634,7 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  Widget footerSales() {
+  Widget footerSales(context) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -691,35 +649,73 @@ class HomeView extends GetView<HomeController> {
       ),
       child: Row(
         children: <Widget>[
-          Container(
-            width: 290,
-            padding: const EdgeInsets.all(25),
-            child: ListTile(
-              title: TextButton(onPressed: (){
-                canceledSales();
-              }, child: const Text("Cancelar venda (ESC)")),
-              leading: const Icon(Icons.do_not_disturb),
-            ),
-          ),
-          Container(
-            width: 440,
-            padding: const EdgeInsets.all(25),
-            child:  ListTile(
-              title: TextButton(
-                onPressed: () {
-                  dialogDiscount();
-                },
-                child: const Text("DESCONTO EM TODOS OS PRODUTOS (F4)"),
-              ),
-              leading: const Text(
+          footerButton("Cancelar venda (ESC)", const Icon(Icons.do_not_disturb),
+              action: canceledSales),
+          footerButton(
+              "DESCONTO EM TODOS OS PRODUTOS (F4)",
+              const Text(
                 "%",
                 style: TextStyle(fontSize: 20),
               ),
-            ),
-          ),
+              action: dialogDiscount),
         ],
       ),
     );
+  }
+
+  Widget footerButton(String text, Widget icon, {action, context}) {
+    return Expanded(
+      child: Container(
+        margin: const EdgeInsets.only(right: 20, left: 25),
+        padding: const EdgeInsets.only(top: 25, bottom: 25),
+        child: TextButton.icon(
+          style: ButtonStyle(
+              minimumSize: MaterialStateProperty.all(const Size(00, 50))),
+          label: Text(text),
+          icon: icon,
+          onPressed: () {
+            action();
+          },
+        ),
+      ),
+    );
+  }
+
+
+
+  Widget textFieldDialogExchangeAndReturn(String text, _controller) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.only(top: 8.0),
+          child: Text(
+            text,
+            textAlign: TextAlign.start,
+          ),
+        ),
+        TextField(
+          controller: _controller,
+        ),
+      ],
+    );
+  }
+
+  dataColumn(String _text) {
+    return DataColumn(
+      label: Text(
+        _text,
+        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+      ),
+    );
+  }
+
+  dataRow(String _text) {
+    return DataCell(
+      ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 250),
+      child: Text(_text),
+    ));
   }
 
   Widget priceSales() {
@@ -873,4 +869,177 @@ class HomeView extends GetView<HomeController> {
       ],
     );
   }
+
+  void confirmSale() {
+    Get.dialog(
+      AlertDialog(
+        content: const SingleChildScrollView(
+          child: Text(
+            "Deseja Finalizar a venda?",
+            style: TextStyle(
+              fontSize: 22,
+              letterSpacing: 1,
+            ),
+          ),
+        ),
+        actions: <Widget>[
+          Container(
+            margin: const EdgeInsets.only(bottom: 10),
+            child: TextButton(
+              onPressed: () {
+                Get.back();
+              },
+              child: const Text(
+                "Cancelar",
+                style: TextStyle(fontSize: 22),
+              ),
+            ),
+          ),
+          Container(
+            margin: const EdgeInsets.only(bottom: 10),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(60, 45),
+                  primary: const Color.fromRGBO(0, 103, 254, 1)),
+              onPressed: () {
+                controller.confirmSales();
+                Get.back();
+              },
+              child: const Text(
+                "CONFIRMAR",
+                style: TextStyle(fontSize: 22),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
+
+//void dialogExchangeAndReturn(context) {
+//     Get.dialog(AlertDialog(
+//       actionsPadding: const EdgeInsets.only(bottom: 10),
+//       actions: [
+//         ElevatedButton(
+//             style: ElevatedButton.styleFrom(minimumSize: const Size(40, 50)),
+//             onPressed: () {
+//               controller.resultSearchProductSaleExchangeAndReturn.clear();
+//               controller.codeSaleOrClient.text = "";
+//               Get.back();
+//             },
+//             child: const Text("Cancelar")),
+//         ElevatedButton(
+//             style: ElevatedButton.styleFrom(minimumSize: Size(40, 50)),
+//             onPressed: () {},
+//             child: const Text("Troca")),
+//         ElevatedButton(
+//             style: ElevatedButton.styleFrom(minimumSize: Size(40, 50)),
+//             onPressed: () {},
+//             child: const Text("Devolver"))
+//       ],
+//       content: SizedBox(
+//         width: 800,
+//         child: Column(
+//           children: <Widget>[
+//             const Padding(
+//               padding: EdgeInsets.all(8.0),
+//               child: Text(
+//                 "TROCA/DEVOLUÇÃO",
+//                 textAlign: TextAlign.center,
+//               ),
+//             ),
+//             SizedBox(
+//               width: 800,
+//               height: 90,
+//               child: StaggeredGridView.count(
+//                 crossAxisCount: 2,
+//                 mainAxisSpacing: 5,
+//                 crossAxisSpacing: 5,
+//                 staggeredTiles: const [
+//                   StaggeredTile.fit(2),
+//                 ],
+//                 children: [
+//                   Container(
+//                     alignment: Alignment.centerLeft,
+//                     child: textFieldDialogExchangeAndReturn(
+//                         "COD.VENDA/CLIENTE", controller.codeSaleOrClient),
+//                   ),
+//                 ],
+//               ),
+//             ),
+//             Container(
+//               alignment: Alignment.centerLeft,
+//               padding: const EdgeInsets.only(top: 5, bottom: 10),
+//               child: ElevatedButton.icon(
+//                 label: const Text("Pesquisar"),
+//                 onPressed: () {
+//                   controller.exchangeAndReturn();
+//                 },
+//                 icon: const Icon(Icons.search),
+//                 style: ElevatedButton.styleFrom(
+//                   minimumSize: const Size(40, 50),
+//                 ),
+//               ),
+//             ),
+//             const Divider(height: 1),
+//             Expanded(
+//               child: resultSearchExchangeAndReturn(),
+//             )
+//           ],
+//         ),
+//       ),
+//     ));
+//   }
+
+//  Widget resultSearchExchangeAndReturn() {
+//     return Obx((){
+//         if(controller.resultSearchProductSaleExchangeAndReturn.isEmpty){
+//         return Text("");
+//         }
+//         return SingleChildScrollView(
+//           primary: false,
+//           child: DataTable(
+//             columnSpacing: 30,
+//             headingRowHeight: 40,
+//             dataRowHeight: 60,
+//             columns: <DataColumn>[
+//               dataColumn("CÓDIGO"),
+//               dataColumn("PRODUTO"),
+//               dataColumn("QUANTIDADE"),
+//               dataColumn("TAMANHO"),
+//               dataColumn("VALOR"),
+//             ],
+//             rows: List<DataRow>.generate(
+//                 controller.resultSearchProductSaleExchangeAndReturn.length,
+//                     (int index) => DataRow(cells: <DataCell>[
+//                   dataRow(controller
+//                       .resultSearchProductSaleExchangeAndReturn[index]
+//                   ["codeSales"]),
+//                   dataRow(controller
+//                       .resultSearchProductSaleExchangeAndReturn[index]
+//                   ["product"]),
+//                   dataRow(controller
+//                       .resultSearchProductSaleExchangeAndReturn[index]
+//                   ["qts"]
+//                       .toString()),
+//                   dataRow(controller
+//                       .resultSearchProductSaleExchangeAndReturn[index]
+//                   ["size"]),
+//                   dataRow(controller.formatter.format(controller
+//                       .resultSearchProductSaleExchangeAndReturn[index]
+//                   ["saleValue"])),
+//                 ],selected: controller.productSelectExchange[index] == true ? true : false,
+//                     onSelectChanged: (value) {
+//                       if(value == true){
+//                         controller.productSelectExchange[index] = true;
+//                       }else{
+//                         controller.productSelectExchange[index] = false;
+//                       }
+//
+//                     })),
+//           ),
+//         );
+//
+//     });
+//   }
