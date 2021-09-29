@@ -17,7 +17,7 @@ clicking on a category it is possible to view the respective products, being pos
 
 ![asdfasdfsda](https://user-images.githubusercontent.com/13892814/134994871-bdc7ca34-648a-47e1-97dd-a84e47351b10.PNG)
 
-##  Reports tab 
+##  Reports tab
 
 You can check the profit for the month, the categories that sold the most and the products that sold the most. in addition to the annual profit
 

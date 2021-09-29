@@ -3,8 +3,9 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:lustore/app/repository/IApi_user.dart';
 
-abstract class ApiUser {
+class ApiUser implements IApiUser{
   final store = GetStorage();
   static String url = "http://127.0.0.1:8000/api/";
   Jwt jwt = Jwt();
@@ -26,6 +27,7 @@ abstract class ApiUser {
     }
   }
 
+  @override
   Future<dynamic> refreshJwt() async {
     var token = store.read("token");
     if (token == null) {
@@ -58,6 +60,7 @@ abstract class ApiUser {
     }
   }
 
+  @override
   Future<dynamic> logout() async {
     String token = await refreshJwt();
     final response = await http.post(
@@ -71,4 +74,6 @@ abstract class ApiUser {
       return jsonDecode(response.body);
     }
   }
+
+
 }
