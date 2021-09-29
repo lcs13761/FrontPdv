@@ -1,16 +1,24 @@
-# lustore
+# LuStore | Pdv Desktop
 
-A new Flutter project.
 
-## Getting Started
 
-This project is a starting point for a Flutter application.
+### The program is still under development, but it already has some features. developed using desktop flutter, with connection in an api.
 
-A few resources to get you started if this is your first Flutter project:
+##  Sale tab
+the image below is the sale tab, with the option to cancel the sale, search for the product, edit the product quantity and discount, remove the product from sale.
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+![aasdfsdfasdfsdfafsdafas](https://user-images.githubusercontent.com/13892814/134993771-3948475b-7e6c-4d21-a1c6-0d31445a8f3f.PNG)
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+##  Products tab
+
+the products tab initially lists the categories, and informs the amount of products by category, where you can add the product, add category and add the cost of the month in product purchases.
+You can change each category and delete if you don't have any registered products.
+clicking on a category it is possible to view the respective products, being possible to change the product and delete it.
+
+![asdfasdfsda](https://user-images.githubusercontent.com/13892814/134994871-bdc7ca34-648a-47e1-97dd-a84e47351b10.PNG)
+
+##  Reports tab
+
+You can check the profit for the month, the categories that sold the most and the products that sold the most. in addition to the annual profit
+
+![asdfasdfsda](https://user-images.githubusercontent.com/13892814/134995289-552f5c96-60d9-4942-bf7f-1ae1fafbf4d8.PNG)
