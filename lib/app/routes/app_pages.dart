@@ -6,6 +6,8 @@ import 'package:lustore/app/modules/categories/categories_binding.dart';
 import 'package:lustore/app/modules/categories/categories_view.dart';
 import 'package:lustore/app/modules/config/config_binding.dart';
 import 'package:lustore/app/modules/config/config_view.dart';
+import 'package:lustore/app/modules/forget_password/forget_password_binding.dart';
+import 'package:lustore/app/modules/forget_password/forget_password_view.dart';
 import 'package:lustore/app/modules/home/home_binding.dart';
 import 'package:lustore/app/modules/home/home_view.dart';
 import 'package:lustore/app/modules/login/login_binding.dart';
@@ -24,7 +26,7 @@ part 'app_routes.dart';
 class AppPages {
   AppPages._();
 
-  static const INITIAL = Routes.LOGIN;
+  static const INITIAL = Routes.SPLASH;
 
   static final routes = [
     GetPage(
@@ -61,11 +63,19 @@ class AppPages {
       name: _Paths.LOGIN,
       page: () => LoginView(),
       binding: LoginBinding(),
+      transition: Transition.fadeIn
     ),
     GetPage(
       name: _Paths.SPLASH,
-      page: () => SplashView(),
+      page: () => const SplashView(),
       binding: SplashBinding(),
+      transition: Transition.fadeIn
+    ),
+    GetPage(
+      name: _Paths.FORGET_PASSWORD,
+      page: () => ForgetPasswordView(),
+      binding: ForgetPasswordBinding(),
+      transition: Transition.fadeIn
     ),
   ];
 }

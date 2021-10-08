@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:lustore/app/Api/jwt.dart';
 import 'package:flutter/material.dart';
 // ignore: import_of_legacy_library_into_null_safe
@@ -13,7 +12,7 @@ import 'package:lustore/model/user.dart';
 
 
 class AddProductController extends GetxController {
-  final ImagePicker image = ImagePicker();
+
   final TextEditingController cod = TextEditingController();
   final TextEditingController nameProduct = TextEditingController();
   final TextEditingController qts = TextEditingController();
@@ -55,14 +54,16 @@ class AddProductController extends GetxController {
       sizeProduct.value = Get.arguments["size"].toString();
       idCategory.value =  Get.arguments["id_category"].toString();
       updatePrt.value = true;
-      if(Get.arguments["image"].toString().isNotEmpty){
+      if(Get.arguments["image"]!= null){
         imageProduct.value =  Get.arguments["image"];
         fileUpload.value = true;
+      }else{
+        fileUpload.value = false;
       }
     }
     if (store.read("token") == null) {
-      var response = await user.loginAdmin();
-      store.write("token", response["token"]);
+      store.erase();
+      Get.offNamed("/login");
     }
   }
   getCategories() async {
@@ -115,7 +116,7 @@ class AddProductController extends GetxController {
     }else{
       image = imageProduct.value;
     }
-    await EasyLoading.dismiss();
+
     product.code = cod.text;
     product.product = nameProduct.text;
     product.qts = int.parse(qts.text);

@@ -5,11 +5,10 @@ import 'package:intl/intl.dart';
 import 'package:lustore/model/product.dart';
 import 'package:lustore/model/sale.dart';
 import 'package:flutter/material.dart';
-import 'package:desktop_window/desktop_window.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:flutter_masked_text/flutter_masked_text.dart';
 import 'package:lustore/model/user.dart';
-import 'dart:ui' as ui;
+
 
 
 class HomeController extends GetxController {
@@ -55,11 +54,8 @@ class HomeController extends GetxController {
   @override
   void onInit() async{
     super.onInit();
-    await DesktopWindow.setFullScreen(true);
-    await DesktopWindow.setMinWindowSize(ui.window.physicalSize);
+     if (store.read("sales").toString().isEmpty) {
 
-
-    if (store.read("sales").toString().isEmpty) {
       allProductSales.addAll(store.read("sales"));
       calcSaleNow();
     }
@@ -67,6 +63,25 @@ class HomeController extends GetxController {
         client.text = store.read("client");
     }
     qts.text = "1";
+  }
+
+  @override
+  void onClose() async{
+    super.onClose();
+    closeSale();
+
+  }
+
+  closeSale() async{
+    if(store.read("sales") != null){
+      var verified = await sale.deleteAll(sale);
+      if (verified == true) {
+        store.remove("sales");
+        store.remove("client");
+      }else{
+        throw Exception("error ao excluir os dados");
+      }
+    }
   }
 
   void getAllSalesNow() async {
@@ -117,7 +132,7 @@ class HomeController extends GetxController {
     sale.product = Product(code: code.text,qts: int.parse(qts.text));
     sale.client = client.text.toString();
     var response = await sale.createSaleProduct(sale);
-    if (response["result"].length != 0) {
+    if (response["result"].toString().isNotEmpty) {
       store.remove("sales");
       store.write("sales", response["result"]);
       allProductSales.clear();
@@ -160,7 +175,7 @@ class HomeController extends GetxController {
       return;
     }
     var response = await sale.update(sale,idSales);
-    if (response["result"].length != 0) {
+    if (response["result"].toString().isNotEmpty) {
       store.remove("sales");
       store.write("sales", response["result"]);
       allProductSales.clear();
