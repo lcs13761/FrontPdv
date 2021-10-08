@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:lustore/app/Api/api_user.dart';
 import 'package:lustore/model/category.dart';
 
-abstract class ApiCategories extends ApiUser {
+class ApiCategories extends ApiUser {
   Future<dynamic> getAllCategories() async {
     final response = await http.get(
       Uri.parse(ApiUser.url + "categories"),

@@ -5,7 +5,7 @@ import 'dart:convert';
 import 'package:lustore/app/Api/api_user.dart' ;
 import 'package:lustore/model/product.dart';
 
-abstract class ApiProducts extends ApiUser{
+class ApiProducts extends ApiUser{
 
   Future<dynamic> getOneProduct(String code) async{
     final response = await http.get(
@@ -161,6 +161,9 @@ abstract class ApiProducts extends ApiUser{
       return jsonDecode(response.body);
     }
   }
+
+
+
 
 }
 

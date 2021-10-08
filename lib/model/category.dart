@@ -1,4 +1,4 @@
-import 'package:lustore/app/Api/api_categories.dart';
+import 'package:lustore/app/api/api_categories.dart';
 
 class Category extends ApiCategories{
     int? id;

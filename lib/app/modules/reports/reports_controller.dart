@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:lustore/app/api/api_historic_sales.dart';
 import 'package:lustore/model/product.dart';
 import 'package:lustore/model/sale.dart';
 
@@ -20,7 +21,7 @@ class ReportsController extends GetxController {
   @override
   void onInit() async {
     super.onInit();
-    var getAllSales = await sale.getSalesFinalised();
+    var getAllSales = await ApiHistoricSales().getSalesYear();
     await calcSales(getAllSales);
     await categoryMoreSales(getAllSales);
     await salesYear();
@@ -136,7 +137,7 @@ class ReportsController extends GetxController {
   }
 
   salesYear() async{
-      var listSales =  await sale.getHistoric();
+      var listSales =  await ApiHistoricSales().getHistoric();
       if (listSales["result"] == null) {}
       List salesListYear = listSales["result"];
       Map yearList = {};

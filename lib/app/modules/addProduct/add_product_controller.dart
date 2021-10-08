@@ -83,7 +83,7 @@ class AddProductController extends GetxController {
       image = await product.upload(file.value);
       image = image.replaceAll("\\", "").split(",")[1].split('"')[3];
     }
-
+    await EasyLoading.dismiss();
     product.code = cod.text;
     product.product = nameProduct.text;
     product.qts = int.parse(qts.text);
@@ -93,6 +93,7 @@ class AddProductController extends GetxController {
     product.size = sizeProduct.toString();
     product.category = Category(id: int.parse(idCategory.toString()));
     product.image = image;
+
     var response = await product.create(product);
 
     await 1.delay();
