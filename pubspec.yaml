@@ -9,8 +9,6 @@ dependencies:
   cupertino_icons: ^1.0.2
   get: ^4.1.4
   desktop_window: 0.4.0
-  sizer: 2.0.13
-  image_picker: 0.8.4
   brasil_fields: 1.1.4
   http: 0.13.3
   get_storage: ^2.0.3
@@ -22,15 +20,17 @@ dependencies:
   flutter_staggered_grid_view: 0.4.0
   syncfusion_flutter_charts: 19.2.62
   file_picker: 4.1.0
+  cool_alert: 1.1.0
   flutter: 
     sdk: flutter
-  flutter_localizations:
+  flutter_localizations: 
     sdk: flutter
 
-dev_dependencies: 
+dev_dependencies:
   flutter_lints: ^1.0.0
   flutter_test: 
     sdk: flutter
+
 
 flutter: 
   assets: 

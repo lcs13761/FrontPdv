@@ -14,6 +14,7 @@ abstract class Routes {
   static const CONFIG = _Paths.CONFIG;
   static const LOGIN = _Paths.LOGIN;
   static const SPLASH = _Paths.SPLASH;
+  static const FORGET_PASSWORD = _Paths.FORGET_PASSWORD;
 }
 
 abstract class _Paths {
@@ -25,4 +26,5 @@ abstract class _Paths {
   static const CONFIG = '/config';
   static const LOGIN = '/login';
   static const SPLASH = '/splash';
+  static const FORGET_PASSWORD = '/forget-password';
 }

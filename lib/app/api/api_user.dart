@@ -2,8 +2,10 @@ import 'package:lustore/app/Api/jwt.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:get/get.dart';
 import 'dart:convert';
 import 'package:lustore/app/repository/IApi_user.dart';
+import 'package:lustore/model/user.dart';
 
 class ApiUser implements IApiUser{
   final store = GetStorage();
@@ -12,10 +14,30 @@ class ApiUser implements IApiUser{
 
 
   @override
-  Future<dynamic> loginAdmin() async {
-    var token = jwt.senderCreatesJwt();
-    var data = {"token": token};
-    final response = await http.post(Uri.parse(url + "loginAdmin"),
+  Future login(User data) async {
+    final response = await http.post(Uri.parse(url + "login"),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(data));
+
+    if (response.statusCode == 200) {
+     var level = jsonDecode(response.body)["level"];
+     var _token = jsonDecode(response.body)["token"];
+     store.write("token", _token);
+     if(int.parse(level) != 5){
+       logout();
+       return false;
+     }
+      return true;
+    } else {
+      return jsonDecode(response.body);
+    }
+  }
+
+  @override
+  Future forget(User data) async{
+    final response = await http.post(Uri.parse(url + "forget"),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -29,12 +51,10 @@ class ApiUser implements IApiUser{
   }
 
   @override
-  Future<dynamic> refreshJwt() async {
+  Future refreshJwt() async {
     var token = store.read("token");
     if (token == null) {
-      var response = await loginAdmin();
-      await store.write("token", response["token"]);
-      token = response["token"];
+        return;
     }
     final expirationDate = JwtDecoder.getExpirationDate(token);
     if (!DateTime.now().isAfter(expirationDate)) {
@@ -57,12 +77,14 @@ class ApiUser implements IApiUser{
         return newTokenResponse;
       }
     } else {
+      Get.offNamed("/login");
       throw Exception("error na gercao do token");
+
     }
   }
 
   @override
-  Future<dynamic> logout() async {
+  Future logout() async {
     String token = await refreshJwt();
     final response = await http.post(
       Uri.parse(url + "logout"),
@@ -70,7 +92,9 @@ class ApiUser implements IApiUser{
     );
 
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+      store.remove("token");
+      Get.offNamed("/login");
+      return;
     } else {
       return jsonDecode(response.body);
     }

@@ -3,13 +3,15 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:lustore/app/api/api_user.dart';
-import 'package:lustore/app/modules/home/home_controller.dart';
+import 'package:lustore/model/sale.dart';
 
 
 class Sidebar {
-  HomeController controller = HomeController();
+  Sale sale = Sale();
   final store = GetStorage();
   RxBool sideOpen = false.obs;
+
+
 
 
   Widget side(String active) {
@@ -53,14 +55,29 @@ class Sidebar {
   Widget containerSidebar(IconData icon, String text, {route, colorActive}) {
     return InkWell(
       onTap: () async {
+
+        if(store.read("sales") != null && text != "Vender"){
+            Get.defaultDialog(
+              title: "Alerta!",
+              middleText: "Para proseguir e necessario finalizar a compra",
+              confirm: ElevatedButton(onPressed: () async{
+
+                Get.offAllNamed(route);
+              }, child:  const Text("CONFIRMAR")),
+              cancel: TextButton(onPressed: (){Get.back();},child:  const Text("CANCELAR")),
+            );
+            return;
+        }
         if (text == "Sair") {
-          controller.removeAll();
-          controller.store.erase();
+          await EasyLoading.show(
+            maskType: EasyLoadingMaskType.custom,
+          );
           await ApiUser().logout();
+          store.erase();
           await EasyLoading.dismiss();
-          Get.offNamed("/login");
+          Get.offAllNamed("/login");
         } else {
-          Get.offNamed(route);
+          Get.offAllNamed(route);
         }
       },
       child: Obx(

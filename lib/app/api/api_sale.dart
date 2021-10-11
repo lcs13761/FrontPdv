@@ -24,7 +24,7 @@ import 'package:lustore/model/sale.dart';
   Future<dynamic> createSaleProduct(Sale data) async {
     String token = await refreshJwt();
     final response = await http.post(
-      Uri.parse(ApiUser.url + "sale"),
+      Uri.parse(ApiUser.url + "sale/add"),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': 'Bearer ' + token
