@@ -92,7 +92,7 @@ class ApiProducts extends ApiUser{
     if (response.statusCode == 200) {
       return true;
     } else {
-      return jsonDecode(response.body);
+      return jsonDecode(jsonEncode(response.body));
     }
   }
 
@@ -129,21 +129,7 @@ class ApiProducts extends ApiUser{
   }
 
 
-  Future<dynamic> getCost() async {
-    String token = await refreshJwt();
-    final response = await http.get(
-      Uri.parse(ApiUser.url + "monthCost"),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'Bearer ' + token
-      },
-    );
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      return jsonDecode(response.body);
-    }
-  }
+
 
   Future<dynamic> postCost(Map data) async {
     String token = await refreshJwt();

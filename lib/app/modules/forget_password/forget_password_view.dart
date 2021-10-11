@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:cool_alert/cool_alert.dart';
-import 'login_controller.dart';
+import 'package:get/get.dart';
+import 'forget_password_controller.dart';
 
-class LoginView extends GetView<LoginController> {
-  LoginView({Key? key}) : super(key: key);
+class ForgetPasswordView extends GetView<ForgetPasswordController> {
+  ForgetPasswordView({Key? key}) : super(key: key);
 
-  final _formKey = GlobalKey<FormState>();
+
+  final _formKeyForget = GlobalKey<FormState>();
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -28,17 +31,14 @@ class LoginView extends GetView<LoginController> {
                   margin: const EdgeInsets.only(top: 40),
                   width: 350,
                   child: Form(
-                    key: _formKey,
+                    key: _formKeyForget,
                     child: Column(
                       children: <Widget>[
-                        textFieldEmail("example@mail.com", Icons.email,
+                        textFieldLogin("example@mail.com", Icons.email,
                             controller.email, TextInputType.emailAddress,
                             autocorrect: true,
-                            enableSuggestions: true),
-                        textFieldPassword("Senha", Icons.password,
-                           TextInputType.visiblePassword,
-                            enableSuggestions: false,
-                            autocorrect: false),
+                            enableSuggestions: true,
+                            obscureText: false),
                         Container(
                           alignment: Alignment.centerLeft,
                           margin: const EdgeInsets.only(bottom: 10),
@@ -46,10 +46,10 @@ class LoginView extends GetView<LoginController> {
                             cursor: SystemMouseCursors.click,
                             child: GestureDetector(
                               onTap: () {
-                                  Get.offAllNamed("/forget-password");
+                                    Get.offAllNamed("/login");
                               },
                               child: Text(
-                                "Esqueceu a senha?",
+                                "Volta para Login?",
                                 style: TextStyle(
                                   color: Colors.white.withOpacity(0.9),
                                 ),
@@ -59,20 +59,21 @@ class LoginView extends GetView<LoginController> {
                         ),
                         InkWell(
                           onTap: () async {
-                            if (_formKey.currentState!.validate()) {
+                            if (_formKeyForget.currentState!.validate()) {
                               loading(context);
-                              var _response = await controller.login();
-                              if(_response == true){
+                              var _response = await controller.forget();
+                              if(_response["result"].length != 0){
                                 await 1.delay();
-                                Get.offAllNamed("/home");
+                                success(context,_response["result"]);
                                 return;
                               }
-                              if(_response["error"].length != 0){
+                              if(_response["error"].toString().isNotEmpty){
                                 await 1.delay();
                                 Get.back();
                                 error(context,_response["error"]);
                                 return;
                               }
+
                             }
                           },
                           child: buttonSubmit(),
@@ -105,7 +106,7 @@ class LoginView extends GetView<LoginController> {
       ),
       alignment: Alignment.center,
       child: Text(
-        "ENTRAR",
+        "Enviar por Email",
         style: TextStyle(
           color: Colors.white.withOpacity(0.9),
           fontSize: 16,
@@ -137,18 +138,25 @@ class LoginView extends GetView<LoginController> {
         barrierDismissible: false);
   }
 
-  void success(context) {
+  void success(context,String text) {
     CoolAlert.show(
         context: context,
         width: 400,
         type: CoolAlertType.success,
+        text: text,
+        title: "Sucesso!!",
         animType: CoolAlertAnimType.scale,
         backgroundColor: const Color.fromRGBO(255, 255, 255, 1),
-        barrierDismissible: false);
+        barrierDismissible: false,
+        onConfirmBtnTap: (){
+          Get.offAllNamed("/login");
+        }
+    );
+
   }
 
-  Widget textFieldEmail(String text, IconData icon, controller, type,
-      {enableSuggestions, autocorrect}) {
+  Widget textFieldLogin(String text, IconData icon, controller, type,
+      {obscureText, enableSuggestions, autocorrect}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: TextFormField(
@@ -158,7 +166,7 @@ class LoginView extends GetView<LoginController> {
           }
           return null;
         },
-
+        obscureText: obscureText,
         enableSuggestions: enableSuggestions,
         autocorrect: autocorrect,
         keyboardType: type,
@@ -172,8 +180,8 @@ class LoginView extends GetView<LoginController> {
           ),
           errorBorder: const OutlineInputBorder(
               borderSide: BorderSide(
-            color: Color.fromRGBO(254, 0, 0, 0.6),
-          )),
+                color: Color.fromRGBO(254, 0, 0, 0.6),
+              )),
           focusedErrorBorder: borderColorFocus,
           focusedBorder: borderColorFocus,
           enabledBorder: borderColor,
@@ -187,72 +195,10 @@ class LoginView extends GetView<LoginController> {
     );
   }
 
-  Widget textFieldPassword(String text, IconData icon, type,
-      {enableSuggestions, autocorrect}) {
-    return Obx(
-      (){
-        return  Padding(
-          padding: const EdgeInsets.only(bottom: 10),
-          child: TextFormField(
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return "Preencha esse campo";
-              }
-              return null;
-            },
-            obscureText: controller.show.isTrue ? false : true,
-            enableSuggestions: enableSuggestions,
-            autocorrect: autocorrect,
-            keyboardType: type,
-            controller:  controller.password,
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.9),
-            ),
-            decoration: InputDecoration(
-              hintStyle: TextStyle(
-                color: Colors.white.withOpacity(0.5),
-              ),
-              errorBorder: const OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Color.fromRGBO(254, 0, 0, 0.6),
-                  )),
-              focusedErrorBorder: borderColorFocus,
-              focusedBorder: borderColorFocus,
-              enabledBorder: borderColor,
-              hintText: text,
-              suffixIcon: InkWell(
-                onTap: (){
-                if( controller.show.isTrue){
-                  controller.show.value = false;
-                }else{
-                  controller.show.value = true;
-                }
-                },
-                child: controller.show.isTrue ? hiddenPassword : showPassword ,
-              ),
-              prefixIcon: Icon(
-                icon,
-                color: Colors.white.withOpacity(0.9),
-              ),
-            ),
-          ),
-        );
-      }
-    );
-  }
-
-  final showPassword =  Icon(
-      Icons.remove_red_eye_sharp,
-      color: Colors.white.withOpacity(0.9));
-
-  final hiddenPassword = Icon(
-      Icons.visibility_off,
-      color: Colors.white.withOpacity(0.9));
-
   final borderColorFocus = const OutlineInputBorder(
       borderSide: BorderSide(
-    color: Color.fromRGBO(0, 103, 254, 1),
-  ));
+        color: Color.fromRGBO(0, 103, 254, 1),
+      ));
 
   final borderColor = const OutlineInputBorder(
       borderSide: BorderSide(color: Color.fromRGBO(255, 255, 255, 0.9)));
