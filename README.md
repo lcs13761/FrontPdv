@@ -2,7 +2,7 @@
 
 
 
-### The program is still under development, but it already has some features. developed using desktop flutter, with connection in an api.
+### The program is  developed using desktop flutter, with connection in an api.
 
 ##  Sale tab
 the image below is the sale tab, with the option to cancel the sale, search for the product, edit the product quantity and discount, remove the product from sale.
