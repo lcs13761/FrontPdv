@@ -64,6 +64,7 @@ class CategoriesController extends GetxController {
     );
     category.category =  nameCategory.text;
     var verified = await category.createCategory(category);
+    await EasyLoading.dismiss();
     if (verified) {
       await getCategories();
     } else {
@@ -71,7 +72,7 @@ class CategoriesController extends GetxController {
         onConfirm: () => Get.back(),
         middleText: "Erro ao adicionar",
       );
-      await EasyLoading.dismiss();
+
     }
   }
 

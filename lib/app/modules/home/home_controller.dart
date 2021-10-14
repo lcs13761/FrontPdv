@@ -132,7 +132,8 @@ class HomeController extends GetxController {
     sale.product = Product(code: code.text,qts: int.parse(qts.text));
     sale.client = client.text.toString();
     var response = await sale.createSaleProduct(sale);
-    if (response["result"].toString().isNotEmpty) {
+
+    if (response["result"].length != 0) {
       store.remove("sales");
       store.write("sales", response["result"]);
       allProductSales.clear();
@@ -188,11 +189,11 @@ class HomeController extends GetxController {
   }
   
   void confirmSales() async{
+
     await EasyLoading.show(
       maskType: EasyLoadingMaskType.custom,
     );
     sale.client = client.text;
-
     var verified = await sale.saveSales(sale);
     if (verified == true) {
       store.remove("sales");

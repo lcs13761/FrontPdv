@@ -16,15 +16,16 @@ class Sidebar {
 
   Widget side(String active) {
     return MouseRegion(
-      onEnter: (event) => sideOpen.value = true,
+      onEnter: (event) => sideOpen.value = false,
       onExit: (event) => sideOpen.value = false,
       child: Obx(() => AnimatedContainer(
             duration: const Duration(milliseconds: 120),
             decoration: const BoxDecoration(
-              gradient: LinearGradient(colors: [
-                Color.fromRGBO(235, 235, 235, 1),
-                Color.fromRGBO(194, 152, 95, 1)
-              ], begin: FractionalOffset(1, 0)),
+              color: Color.fromRGBO(194, 152, 95, 1)
+              // gradient: LinearGradient(colors: [
+              //   Color.fromRGBO(235, 235, 235, 1),
+              //   Color.fromRGBO(194, 152, 95, 1)
+              // ], begin: FractionalOffset(1, 0)),
             ),
             height: 1000,
             width: sideOpen.isFalse ? 50 : 100,
@@ -42,9 +43,9 @@ class Sidebar {
                 containerSidebar(Icons.assessment_outlined, "Relatórios",
                     colorActive: active == "reports" ? true : false,
                     route: "/reports"),
-                containerSidebar(Icons.brightness_5_rounded, "Configuração",
-                    colorActive: active == "config" ? true : false,
-                    route: "/config"),
+                // containerSidebar(Icons.brightness_5_rounded, "Configuração",
+                //     colorActive: active == "config" ? true : false,
+                //     route: "/config"),
                 containerSidebar(Icons.power_settings_new, "Sair"),
               ],
             ),
@@ -82,7 +83,7 @@ class Sidebar {
       },
       child: Obx(
         () => Container(
-          padding: const EdgeInsets.only(top: 15, bottom: 15),
+          padding: const EdgeInsets.only(top: 20, bottom: 15),
           width: 1000,
           color: colorActive == true && sideOpen.isTrue
               ? const Color.fromRGBO(194, 132, 0, 1)
@@ -92,8 +93,10 @@ class Sidebar {
             children: <Widget>[
               Icon(
                 icon,
+              size: 30
+              ,
                 color: colorActive == true && sideOpen.isFalse
-                    ? const Color.fromRGBO(194, 132, 0, 1)
+                    ? const Color.fromRGBO(36, 33, 26, 1.0)
                     : Colors.white70,
               ),
               sideOpen.isFalse

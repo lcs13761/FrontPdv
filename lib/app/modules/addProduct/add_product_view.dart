@@ -110,30 +110,27 @@ class AddProductView extends GetView<AddProductController> {
       margin: const EdgeInsets.only(right: 30, top: 10, bottom: 10),
       child: Obx(
         () {
-          if (controller.listCategories.isNotEmpty) {
-            return DropdownButtonFormField(
-              decoration: const InputDecoration(
-                prefix: Padding(
-                  padding: EdgeInsets.only(top: 10, right: 15),
-                  child: Text(
-                    "Categoria:",
-                    style: TextStyle(fontSize: 16, color: Colors.black),
-                  ),
+          return DropdownButtonFormField(
+            decoration: const InputDecoration(
+              prefix: Padding(
+                padding: EdgeInsets.only(top: 10, right: 15),
+                child: Text(
+                  "Categoria:",
+                  style: TextStyle(fontSize: 16, color: Colors.black),
                 ),
               ),
-              onChanged: (newValue) {
-                controller.idCategory.value = newValue.toString();
-              },
-              value: controller.idCategory.toString(),
-              items: controller.listCategories.map((value) {
-                return DropdownMenuItem(
-                  value: value["id"].toString(),
-                  child: Text(value["category"].toString().toUpperCase()),
-                );
-              }).toList(),
-            );
-          }
-          return const Text("");
+            ),
+            onChanged: (newValue) {
+              controller.idCategory.value = newValue.toString();
+            },
+            value: controller.idCategory.toString(),
+            items: controller.listCategories.map((value) {
+              return DropdownMenuItem(
+                value: value["id"].toString(),
+                child: Text(value["category"].toString().toUpperCase()),
+              );
+            }).toList(),
+          );
         },
       ),
     );

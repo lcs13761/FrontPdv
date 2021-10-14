@@ -67,13 +67,12 @@ class LoginView extends GetView<LoginController> {
                                 Get.offAllNamed("/home");
                                 return;
                               }
-                              if(_response["error"].toString().isNotEmpty){
+                              if(_response["error"].length != 0){
                                 await 1.delay();
                                 Get.back();
                                 error(context,_response["error"]);
                                 return;
                               }
-
                             }
                           },
                           child: buttonSubmit(),

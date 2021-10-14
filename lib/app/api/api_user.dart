@@ -9,7 +9,7 @@ import 'package:lustore/model/user.dart';
 
 class ApiUser implements IApiUser{
   final store = GetStorage();
-  static String url = "http://127.0.0.1:8000/api/";
+  static String url = "";
   Jwt jwt = Jwt();
 
 

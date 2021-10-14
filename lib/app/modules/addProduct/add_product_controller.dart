@@ -96,12 +96,13 @@ class AddProductController extends GetxController {
     product.image = image;
 
     var response = await product.create(product);
-
     await 1.delay();
-    await EasyLoading.dismiss();
+
     if (response == true) {
+      await EasyLoading.dismiss();
       messageDialog("Produto criado com sucesso\nDeseja continua?");
     }
+    await EasyLoading.dismiss();
   }
 
   void updateProduct() async {
