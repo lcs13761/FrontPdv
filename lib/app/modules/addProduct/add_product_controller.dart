@@ -1,14 +1,12 @@
+import 'package:extended_masked_text/extended_masked_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:lustore/app/Api/jwt.dart';
 import 'package:flutter/material.dart';
-// ignore: import_of_legacy_library_into_null_safe
-import "package:flutter_masked_text/flutter_masked_text.dart";
 import 'package:get_storage/get_storage.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:lustore/model/category.dart';
-import 'package:lustore/model/product.dart';
-import 'package:lustore/model/user.dart';
+import 'package:lustore/app/model/category.dart';
+import 'package:lustore/app/model/product.dart';
+import 'package:lustore/app/model/user.dart';
 
 
 class AddProductController extends GetxController {
@@ -30,7 +28,6 @@ class AddProductController extends GetxController {
   Category category = Category();
   Product product = Product();
   User user = User();
-  Jwt jwt = Jwt();
 
 
   dynamic pickImageError;
@@ -67,7 +64,7 @@ class AddProductController extends GetxController {
     }
   }
   getCategories() async {
-    var getAll = await category.getAllCategories();
+    var getAll = await category.index();
     if (getAll["result"].toString().isEmpty) {
       return;
     }
@@ -81,7 +78,7 @@ class AddProductController extends GetxController {
 
     var image = file.value;
     if(file.isNotEmpty){
-      image = await product.upload(file.value);
+      image = await product.store(file.value);
       image = image.replaceAll("\\", "").split(",")[1].split('"')[3];
     }
     await EasyLoading.dismiss();
@@ -93,9 +90,9 @@ class AddProductController extends GetxController {
         : double.parse(saleValue.text.replaceAll(",", "."));
     product.size = sizeProduct.toString();
     product.category = Category(id: int.parse(idCategory.toString()));
-    product.image = image;
+    // product.image = image;
 
-    var response = await product.create(product);
+    var response = await product.store(product);
     await 1.delay();
 
     if (response == true) {
@@ -112,7 +109,7 @@ class AddProductController extends GetxController {
 
     var image = file.value;
     if(file.isNotEmpty){
-      image = await product.upload(file.value);
+      image = await product.store(file.value);
       image = image.replaceAll("\\", "").split(",")[1].split('"')[3];
     }else{
       image = imageProduct.value;
@@ -126,8 +123,8 @@ class AddProductController extends GetxController {
         : double.parse(saleValue.text.replaceAll(",", "."));
     product.size = sizeProduct.toString();
     product.category = Category(id: int.parse(idCategory.toString()));
-    product.image = image;
-    var response = await product.update(product);
+    // product.image = image;
+    var response = await product.update(product,1);
     await 1.delay();
     await EasyLoading.dismiss();
     if (response == true) {

@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:lustore/app/modules/sidebar/sidebar.dart';
 import 'home_controller.dart';
 import '../../sidebar/sidebar.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';

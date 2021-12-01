@@ -3,6 +3,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:lustore/app/modules/sidebar/sidebar.dart';
 import 'categories_controller.dart';
 import '../../sidebar/sidebar.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -135,7 +136,7 @@ class CategoriesView extends GetView<CategoriesController> {
                         alignment: Alignment.centerLeft,
                         margin: const EdgeInsets.only(bottom: 50, left: 10),
                         child: FutureBuilder(
-                          future: controller.product.getProductsByCategory(
+                          future: controller.product.show(
                               controller.listCategories[index]["id"]
                                   .toString()),
                           builder:

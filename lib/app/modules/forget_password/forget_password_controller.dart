@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:lustore/model/user.dart';
+import 'package:lustore/app/model/user.dart';
 
 class ForgetPasswordController extends GetxController {
   User user = User();
@@ -15,8 +15,8 @@ class ForgetPasswordController extends GetxController {
       return "adf";
     }
       user.email = email.text;
-      var response = await user.forget(user);
-      return response;
+      // var response = await user.forget(user);
+      // return response;
 
     }
 

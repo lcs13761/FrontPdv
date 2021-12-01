@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import '../../sidebar/sidebar.dart';
+import 'package:lustore/app/modules/sidebar/sidebar.dart';
 import 'reports_controller.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';

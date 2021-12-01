@@ -1,11 +1,12 @@
 import 'package:get/get.dart';
-import 'package:lustore/model/report.dart';
-import 'package:lustore/model/sale.dart';
+import 'package:lustore/app/api/api_report.dart';
+import 'package:lustore/app/model/sale.dart';
+
 
 
 class ReportsController extends GetxController {
   Sale sale = Sale();
-  Report report = Report();
+  ApiReport report = ApiReport();
   final bool animate = false;
   final RxList costValue = [].obs;
   RxList<OrdinalSales> data = <OrdinalSales>[].obs;
@@ -26,15 +27,10 @@ class ReportsController extends GetxController {
   salesAndCost() async {
 
     var resultGetSales = await report.getReportsSales();
-    var resultGetCost = await report.getReportsCost();
-    if (resultGetCost["result"].length == 0 || resultGetCost["result"].length == 0) {
-      return;
-    }
     monthSales = resultGetSales["result"];
-    costMonth = resultGetCost["result"];
 
       monthSales.forEach((key, value) {
-        data.add(OrdinalSales(key,double.parse(value.toString()),double.parse(costMonth[key].toString())));
+        data.add(OrdinalSales(key,double.parse(value.toString())));
       });
 
   }
@@ -104,7 +100,6 @@ class SalesProduct{
 class OrdinalSales {
   final String year;
   final double sales;
-  final double cost;
 
-  OrdinalSales(this.year, this.sales, this.cost);
+  OrdinalSales(this.year, this.sales);
 }

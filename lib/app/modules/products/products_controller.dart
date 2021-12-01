@@ -4,8 +4,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:lustore/model/product.dart';
-import 'package:lustore/model/user.dart';
+import 'package:lustore/app/model/product.dart';
+import 'package:lustore/app/model/user.dart';
 
 
 class ProductsController extends GetxController {
@@ -28,7 +28,7 @@ class ProductsController extends GetxController {
   Future load() async {
     await 1.delay();
     allProducts.clear();
-    var result = await product.getProductsByCategory(Get.arguments["id"].toString());
+    var result = await product.index();
     allProducts.addAll(result["result"]);
     isNotEmpty.value = true;
   }
@@ -38,12 +38,9 @@ class ProductsController extends GetxController {
       maskType: EasyLoadingMaskType.custom,
     );
     Get.back();
-    var token = await user.refreshJwt();
-    if (token == null) {
-      return;
-    }
+
     var id = allProducts[index]["code"].toString();
-    var verified = await product.delete(id);
+    var verified = await product.destroy(id);
     await EasyLoading.dismiss();
     if (verified == true) {
       allProducts.removeAt(index);

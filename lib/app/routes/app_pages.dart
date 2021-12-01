@@ -10,6 +10,8 @@ import 'package:lustore/app/modules/forget_password/forget_password_binding.dart
 import 'package:lustore/app/modules/forget_password/forget_password_view.dart';
 import 'package:lustore/app/modules/home/home_binding.dart';
 import 'package:lustore/app/modules/home/home_view.dart';
+import 'package:lustore/app/modules/login/forget_password/login_forget_password_binding.dart';
+import 'package:lustore/app/modules/login/forget_password/login_forget_password_view.dart';
 import 'package:lustore/app/modules/login/login_binding.dart';
 import 'package:lustore/app/modules/login/login_view.dart';
 import 'package:lustore/app/modules/products/products_binding.dart';
@@ -60,22 +62,22 @@ class AppPages {
         binding: ConfigBinding(),
         transition: Transition.fadeIn),
     GetPage(
-      name: _Paths.LOGIN,
-      page: () => LoginView(),
-      binding: LoginBinding(),
-      transition: Transition.fadeIn
+        name: _Paths.LOGIN,
+        page: () => LoginView(),
+        binding: LoginBinding(),
+        transition: Transition.fadeIn,
+        children: [
+        GetPage(
+          name: _Paths.LOGIN_FORGET_PASSWORD,
+          page: () => LoginForgetPasswordView(),
+          binding: LoginForgetPasswordBinding(),
+        ),
+      ]
     ),
     GetPage(
-      name: _Paths.SPLASH,
-      page: () => const SplashView(),
-      binding: SplashBinding(),
-      transition: Transition.fadeIn
-    ),
-    GetPage(
-      name: _Paths.FORGET_PASSWORD,
-      page: () => ForgetPasswordView(),
-      binding: ForgetPasswordBinding(),
-      transition: Transition.fadeIn
-    ),
+        name: _Paths.SPLASH,
+        page: () => const SplashView(),
+        binding: SplashBinding(),
+        transition: Transition.fadeIn),
   ];
 }

@@ -12,7 +12,7 @@ dependencies:
   brasil_fields: 1.1.4
   http: 0.13.3
   get_storage: ^2.0.3
-  flutter_masked_text: ^0.8.0
+  extended_masked_text: 2.3.1
   flutter_easyloading: ^3.0.3
   intl: ^0.17.0
   jwt_decoder: 2.0.1

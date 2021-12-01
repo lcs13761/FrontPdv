@@ -1,13 +1,11 @@
+import 'package:extended_masked_text/extended_masked_text.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:intl/intl.dart';
-import 'package:lustore/model/product.dart';
-import 'package:lustore/model/sale.dart';
 import 'package:flutter/material.dart';
-// ignore: import_of_legacy_library_into_null_safe
-import 'package:flutter_masked_text/flutter_masked_text.dart';
-import 'package:lustore/model/user.dart';
+import 'package:lustore/app/model/product.dart';
+import 'package:lustore/app/model/sale.dart';
 
 
 
@@ -18,15 +16,8 @@ class HomeController extends GetxController {
   TextEditingController qts = TextEditingController();
   TextEditingController valueDiscount = TextEditingController();
   NumberFormat formatter = NumberFormat.simpleCurrency();
-  User user = User();
   Sale sale = Sale();
-  MoneyMaskedTextController discountGroup = MoneyMaskedTextController(
-    initialValue: 0,
-    decimalSeparator: "",
-    thousandSeparator: "",
-    precision: 1,
-  );
-  MoneyMaskedTextController allDiscount = MoneyMaskedTextController(
+  MoneyMaskedTextController discount = MoneyMaskedTextController(
     initialValue: 0,
     decimalSeparator: "",
     thousandSeparator: "",
@@ -39,7 +30,6 @@ class HomeController extends GetxController {
   RxDouble total = 0.0.obs;
   String idSales = "";
   RxBool productSelect = false.obs;
-  RxDouble discount = 0.0.obs;
   RxDouble saleValuesFinal = 0.0.obs;
   RxDouble valueProduct = 0.0.obs;
   RxString image = "".obs;
@@ -74,7 +64,7 @@ class HomeController extends GetxController {
 
   closeSale() async{
     if(store.read("sales") != null){
-      var verified = await sale.deleteAll(sale);
+      var verified = await sale.destroy(sale);
       if (verified == true) {
         store.remove("sales");
         store.remove("client");
@@ -131,18 +121,18 @@ class HomeController extends GetxController {
     }
     sale.product = Product(code: code.text,qts: int.parse(qts.text));
     sale.client = client.text.toString();
-    var response = await sale.createSaleProduct(sale);
+    var response = await sale.store(sale);
 
-    if (response["result"].length != 0) {
-      store.remove("sales");
-      store.write("sales", response["result"]);
-      allProductSales.clear();
-      allProductSales.addAll(response["result"]);
-      store.write("client", client.text);
-      calcSaleNow();
-    }else{
-      dialogSearch(response["error"]);
-    }
+    // if (response["result"].length != 0) {
+    //   store.remove("sales");
+    //   store.write("sales", response["result"]);
+    //   allProductSales.clear();
+    //   allProductSales.addAll(response["result"]);
+    //   store.write("client", client.text);
+    //   calcSaleNow();
+    // }else{
+    //   dialogSearch(response["error"]);
+    // }
     await EasyLoading.dismiss();
   }
 
@@ -170,7 +160,7 @@ class HomeController extends GetxController {
     );
 
     sale.product = Product(qts: updateQts.value);
-    sale.discount = double.parse(discountGroup.text);
+    sale.discount = double.parse(discount.text);
     if(idSales.isEmpty){
       await EasyLoading.dismiss();
       return;
@@ -194,7 +184,7 @@ class HomeController extends GetxController {
       maskType: EasyLoadingMaskType.custom,
     );
     sale.client = client.text;
-    var verified = await sale.saveSales(sale);
+    var verified = await sale.store(sale);
     if (verified == true) {
       store.remove("sales");
       allProductSales.clear();
@@ -208,14 +198,14 @@ class HomeController extends GetxController {
       maskType: EasyLoadingMaskType.custom,
     );
 
-    sale.discount = double.parse(allDiscount.text);
-    var response = await sale.discountAll(sale);
+    sale.discount = double.parse(discount.text);
+    var response = await sale.update(sale,1);
     if (response["result"].length != 0) {
       store.remove("sales");
       store.write("sales", response["result"]);
       allProductSales.clear();
       allProductSales.addAll(response["result"]);
-      discount.value = double.parse(allDiscount.text);
+      // discount.value = double.parse(discount.text);
       calcSaleNow();
     }
     await EasyLoading.dismiss();
@@ -226,7 +216,7 @@ class HomeController extends GetxController {
       maskType: EasyLoadingMaskType.custom,
     );
 
-    var verified = await sale.deleteOne(id);
+    var verified = await sale.destroy(id);
     if (verified == true) {
       allProductSales.removeAt(index);
       getAllSalesNow();
@@ -239,7 +229,7 @@ class HomeController extends GetxController {
       maskType: EasyLoadingMaskType.custom,
     );
 
-    var verified = await sale.deleteAll(sale);
+    var verified = await sale.destroy(sale);
     if (verified == true) {
       store.remove("sales");
       store.remove("client");

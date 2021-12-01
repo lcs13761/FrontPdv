@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:lustore/app/modules/sidebar/sidebar.dart';
 import '../../sidebar/sidebar.dart';
 import 'products_controller.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
