@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
+import 'package:lustore/app/modules/sidebar/sidebar.dart';
 import '../../sidebar/sidebar.dart';
 import 'config_controller.dart';
 

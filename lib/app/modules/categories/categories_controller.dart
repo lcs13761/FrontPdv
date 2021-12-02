@@ -1,11 +1,12 @@
+import 'package:extended_masked_text/extended_masked_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-// ignore: import_of_legacy_library_into_null_safe
-import 'package:flutter_masked_text/flutter_masked_text.dart';
+
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:lustore/model/category.dart';
-import 'package:lustore/model/product.dart';
-import 'package:lustore/model/user.dart';
+import 'package:lustore/app/model/category.dart';
+import 'package:lustore/app/model/product.dart';
+import 'package:lustore/app/model/user.dart';
+
 
 class CategoriesController extends GetxController {
   MoneyMaskedTextController costMonth = MoneyMaskedTextController(
@@ -25,7 +26,7 @@ class CategoriesController extends GetxController {
   }
 
   getCategories() async {
-    var getAll = await category.getAllCategories();
+    var getAll = await category.index();
     if (getAll["result"].toString().isEmpty) {
       return;
     }
@@ -46,7 +47,7 @@ class CategoriesController extends GetxController {
       "month": DateTime.now().month
     };
     await EasyLoading.dismiss();
-    var verified = await product.postCost(data);
+    var verified = await product.store(data);
     if (verified) {
       costMonth.text = "0.0";
     } else {
@@ -63,7 +64,7 @@ class CategoriesController extends GetxController {
       maskType: EasyLoadingMaskType.custom,
     );
     category.category =  nameCategory.text;
-    var verified = await category.createCategory(category);
+    var verified = await category.store(category);
     await EasyLoading.dismiss();
     if (verified) {
       await getCategories();
@@ -84,7 +85,7 @@ class CategoriesController extends GetxController {
     category.category =  nameCategory.text;
     category.id = int.parse(id);
 
-    var verified = await category.updateCategory(category);
+    var verified = await category.update(category,1);
     if (verified == true) {
       await getCategories();
       await EasyLoading.dismiss();
@@ -101,7 +102,7 @@ class CategoriesController extends GetxController {
     await EasyLoading.show(
       maskType: EasyLoadingMaskType.custom,
     );
-    var verified = await category.deleteCategory(id);
+    var verified = await category.destroy(id);
 
     if (verified == true) {
       listCategories.removeAt(index);

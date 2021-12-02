@@ -1,8 +1,11 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../sidebar/sidebar.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:lustore/app/modules/sidebar/sidebar.dart';
+import 'package:lustore/app/routes/app_pages.dart';
+import 'package:lustore/app/theme/style.dart';
 import 'products_controller.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class ProductsView extends GetView<ProductsController> {
   const ProductsView({Key? key}) : super(key: key);
@@ -11,96 +14,255 @@ class ProductsView extends GetView<ProductsController> {
   Widget build(BuildContext context) {
     Sidebar sidebar = Sidebar();
     return Scaffold(
-      backgroundColor: const Color.fromRGBO(204, 204, 204, 1),
+      backgroundColor: backgroundColorDark,
       body: Row(
         children: <Widget>[
           sidebar.side("product"),
           Expanded(
-            child: searchContainer(),
+            child: Container(
+              margin: const EdgeInsets.only(
+                  bottom: 5, right: 10, top: 20, left: 10),
+              child: Column(
+                children: <Widget>[
+                  searchProductContainer(),
+                  titleProduct(),
+                  const Divider(
+                    height: 1,
+                  ),
+                  productsList()
+                ],
+              ),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget searchContainer() {
-    return Column(
-      children: <Widget>[
-        Container(
-          margin: const EdgeInsets.only(bottom: 5, right: 10, left: 10, top: 20),
-          padding: const EdgeInsets.only(bottom: 20, left: 20, right: 20),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(3),
-            color: const Color.fromRGBO(248, 248, 248, 1),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.5),
-                spreadRadius: 0,
-                blurRadius: 4,
-                offset: const Offset(1, 3), // changes position of shadow
-              ),
-            ],
+  Widget searchProductContainer() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.only(bottom: 20, left: 20, right: 20),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(3),
+        color: colorBackgroundCard,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 0,
+            blurRadius: 4,
+            offset: const Offset(1, 3), // changes position of shadow
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
             children: <Widget>[
-              Row(
-                children: <Widget>[
-                  searchProduct("Produto", "Produto"),
-                ],
-              ),
+              const Expanded(child: Text('Produtos')),
+              searchProduct(),
+              buttonAddProduct()
             ],
           ),
-        ),
-        titleListProduct(),
-        Container(
-            margin: const EdgeInsets.only(right: 10, left: 10),
-            child: const Divider(
-              height: 1,
-              color: Colors.black12,
-            )),
-        Expanded(
-          child: Container(
-            margin: const EdgeInsets.only(bottom: 10, right: 10, left: 10),
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.only(
-                  bottomRight: Radius.circular(5),
-                  bottomLeft: Radius.circular(5)),
-              color: const Color.fromRGBO(248, 248, 248, 1),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.5),
-                  spreadRadius: 0,
-                  blurRadius: 4,
-                  offset: const Offset(1, 3), // changes position of shadow
-                ),
-              ],
-            ),
-            child: Obx(() {
-              if (controller.isNotEmpty.isTrue) {
-                return ListView.separated(
-                    itemCount: controller.allProducts.length,
-                    separatorBuilder: (context, index) => const Divider(
-                          color: Colors.black12,
-                          height: 1,
-                        ),
-                    itemBuilder: (BuildContext context, int index) {
-                      return ListTile(
-                        title: bodyProductList(index)
-                      );
-                    });
-              }
+        ],
+      ),
+    );
+  }
 
-              return const Center(
-                child: CircularProgressIndicator(
-                  color: Color.fromRGBO(0, 103, 254, 1),
-                ),
-              );
-            }),
+  Widget searchProduct() {
+    return Container(
+      width: 300,
+      margin: const EdgeInsets.only(right: 10, top: 20),
+      child: TextField(
+        controller: controller.searchProduct,
+        onChanged: (text) {
+          controller.searchDd(text);
+        },
+        decoration: const InputDecoration(
+            hintText: 'Pesquisar',
+            enabledBorder: borderDark,
+            focusedErrorBorder: borderColorFocus,
+            focusedBorder: borderFocusGray,
+            prefixIcon: Icon(Icons.youtube_searched_for)),
+      ),
+    );
+  }
+
+  Widget buttonAddProduct() {
+    return Container(
+      padding: const EdgeInsets.only(top: 20),
+      child: Row(
+        children: <Widget>[
+          ElevatedButton.icon(
+            onPressed: () {},
+            style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.all(15),
+                minimumSize: const Size(10, 55),
+                primary: const Color.fromRGBO(0, 103, 254, 1)),
+            icon: const Icon(Icons.add_circle_outline),
+            label: const Text("Adicionar Produto"),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget titleProduct() {
+    return Container(
+      decoration: BoxDecoration(
+        color: colorBackgroundCard,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 0,
+            blurRadius: 4,
+            offset: const Offset(1, 3), // changes position of shadow
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.only(top: 15, bottom: 15),
+        child: Row(
+          children: <Widget>[
+            fieldTitle('id'),
+            fieldImageTitle(),
+            fieldTitle('Produto'),
+            fieldTitle('Quantidade'),
+            fieldTitle('Valor'),
+            fieldTitle('Categoria'),
+            fieldTitle('Action')
+          ],
         ),
+      ),
+    );
+  }
+
+  Widget fieldTitle(text) {
+    return Expanded(
+        child: Text(
+      text,
+      textAlign: TextAlign.center,
+    ));
+  }
+
+  Widget fieldImageTitle() {
+    return const SizedBox(
+      width: 50,
+      child: Text(''),
+    );
+  }
+
+  Widget productsList() {
+    return Expanded(
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.only(
+              bottomRight: Radius.circular(5), bottomLeft: Radius.circular(5)),
+          color: colorBackgroundCard,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.5),
+              spreadRadius: 0,
+              blurRadius: 4,
+              offset: const Offset(1, 3), // changes position of shadow
+            ),
+          ],
+        ),
+        child: Obx(() {
+          if (controller.inLoading.isTrue) {
+            return const Center(
+              child: CircularProgressIndicator(
+                color: styleColorBlue,
+              ),
+            );
+          }
+          return PagedListView.separated(
+              pagingController: controller.allProducts,
+              separatorBuilder: (context, index) => const Divider(
+                    color: Colors.black12,
+                    height: 1,
+                  ),
+              builderDelegate: PagedChildBuilderDelegate(
+                  itemBuilder: (BuildContext context, item, index) {
+                return bodyProductList(item, index);
+              }));
+        }),
+      ),
+    );
+  }
+
+  Widget bodyProductList(_product, index) {
+    return Row(
+      children: <Widget>[
+        expandedFieldBody(_product["id"].toString()),
+        Container(
+          height: 50,
+          width: 50,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(2),
+            color: const Color.fromRGBO(31, 31, 31, 1.0),
+          ),
+          margin: const EdgeInsets.only(top: 5, bottom: 5),
+          child: _product["image"].length != 0 &&
+                  _product['image'][0]['image'] != null
+              ? Image.network(
+                  _product["image"][0]["image"],
+                  fit: BoxFit.fill,
+                )
+              : Align(
+                  alignment: Alignment.center,
+                  child: Text(
+                    _product['product'].toString().substring(0, 2),
+                    // style: colorAndSizeRegisterProduct),
+                  )),
+        ),
+        expandedFieldBody(_product["product"].toString()),
+        expandedFieldBody(_product["qts"].toString()),
+        expandedFieldBody(_product["saleValue"].toString()),
+        expandedFieldBody(_product["category"]['category'].toString()),
+        expandedActionButton(_product, index),
       ],
     );
+  }
+
+  Widget expandedFieldBody(text) {
+    return Expanded(
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+
+  Widget expandedActionButton(_product, index) {
+    return Expanded(
+        child: Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Container(
+          margin: const EdgeInsets.only(right: 10),
+          child: ElevatedButton(
+            onPressed: () async {
+              Get.offNamed(Routes.PRODUCTS_CREATE_UPDATE, arguments: _product);
+            },
+            style: ElevatedButton.styleFrom(
+                primary: Colors.green.withOpacity(0.8),
+                minimumSize: const Size(40, 45)),
+            child: const Icon(Icons.edit),
+          ),
+        ),
+        ElevatedButton(
+          onPressed: () async {
+            dialogGet("Deseja excluir o produto?", "Confirmar", index);
+          },
+          style: ElevatedButton.styleFrom(
+              primary: Colors.red, minimumSize: const Size(40, 45)),
+          child: const Icon(Icons.delete),
+        ),
+      ],
+    ));
   }
 
   void dialogGet(String text, String confirm, index) {
@@ -136,8 +298,7 @@ class ProductsView extends GetView<ProductsController> {
                 minimumSize: const Size(60, 45),
               ),
               onPressed: () async {
-                controller.deleteProduct(
-                    controller.allProducts[index]["code"].toString(), index);
+
               },
               child: Text(
                 confirm,
@@ -150,138 +311,4 @@ class ProductsView extends GetView<ProductsController> {
     );
   }
 
-  Widget searchProduct(String text, String description) {
-    return Container(
-      width: 450,
-      padding: const EdgeInsets.only(right: 20, top: 20),
-      child: TextField(
-        controller: controller.searchProduct,
-        onChanged: (text) {
-          controller.searchDd(text);
-        },
-        decoration: InputDecoration(
-          hintText: description,
-          prefixIcon: Container(
-            margin: const EdgeInsets.only(top: 10, right: 15),
-            child: Text(text),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget titleListProduct() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.8),
-        borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(5),
-            topRight: Radius.circular(5)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.white.withOpacity(0.8),
-            // changes position of shadow
-          ),
-        ],
-      ),
-      height: 60,
-      padding: const EdgeInsets.only(left: 10),
-      margin: const EdgeInsets.only(left: 10, right: 10),
-      child: StaggeredGridView.count(
-        crossAxisCount: 6,
-        mainAxisSpacing: 0,
-        crossAxisSpacing: 0,
-        children: <Widget>[
-          valuesBodySearch("Código"),
-          valuesBodySearch("Produto"),
-          valuesBodySearch("Quantidade"),
-          valuesBodySearch("Tamanho"),
-          valuesBodySearch("Preço"),
-        ],
-        staggeredTiles: const [
-          StaggeredTile.extent(1, 60),
-          StaggeredTile.extent(1, 60),
-          StaggeredTile.extent(1, 60),
-          StaggeredTile.extent(1, 60),
-          StaggeredTile.extent(1, 60),
-        ],
-      ),
-    );
-  }
-  Widget bodyProductList(index){
-    return  SizedBox(
-      height: 60,
-      child: StaggeredGridView.count(
-        primary: false,
-        physics: const NeverScrollableScrollPhysics(),
-        crossAxisCount: 6,
-        mainAxisSpacing: 10,
-        crossAxisSpacing: 0,
-        children: <Widget>[
-          valuesBodySearch(controller.allProducts[index]["code"].toString()),
-          valuesBodySearch(controller.allProducts[index]["product"].toString()),
-          Padding(
-            padding: const EdgeInsets.only(left: 15.0),
-            child: valuesBodySearch(controller.allProducts[index]["qts"].toString()),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 15.0),
-            child: valuesBodySearch(controller.allProducts[index]["size"]),
-          ),
-          Container(
-            alignment: Alignment.centerLeft,
-            child: Text(controller.formatter.format(controller.allProducts[index]["saleValue"])),
-          ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Container(
-                margin: const EdgeInsets.only(right: 10),
-                child: ElevatedButton(
-                  onPressed: () async {
-                    Get.offNamed("/add-product",
-                        arguments: controller.allProducts[index]);
-                  },
-                  style: ElevatedButton.styleFrom(
-                      primary: Colors.green.withOpacity(0.8),
-                      minimumSize: const Size(40, 45)),
-                  child: const Icon(Icons.edit),
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  dialogGet("Deseja excluir o produto?",
-                      "Confirmar", index);
-                },
-                style: ElevatedButton.styleFrom(
-                    primary: Colors.red, minimumSize: const Size(40, 45)),
-                child: const Icon(Icons.delete),
-              ),
-            ],
-          )
-        ],
-        staggeredTiles: const [
-          StaggeredTile.extent(1, 60),
-          StaggeredTile.extent(1, 60),
-          StaggeredTile.extent(1, 60),
-          StaggeredTile.extent(1, 60),
-          StaggeredTile.extent(1, 60),
-          StaggeredTile.extent(1, 60),
-        ],
-      ),
-    );
-  }
-
-  Widget valuesBodySearch(String text) {
-    return Container(
-      alignment: Alignment.centerLeft,
-      child: Text(
-        text,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        softWrap: false,
-      ),
-    );
-  }
 }
