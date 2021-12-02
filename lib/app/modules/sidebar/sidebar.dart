@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:lustore/app/model/auth.dart';
 import 'package:lustore/app/model/sale.dart';
+import 'package:lustore/app/routes/app_pages.dart';
+import 'package:lustore/app/theme/style.dart';
 
 class Sidebar {
   Sale sale = Sale();
@@ -11,41 +13,34 @@ class Sidebar {
   RxBool sideOpen = false.obs;
 
   Widget side(String active) {
-    return MouseRegion(
-      onEnter: (event) => sideOpen.value = false,
-      onExit: (event) => sideOpen.value = false,
-      child: Obx(() => AnimatedContainer(
-            duration: const Duration(milliseconds: 120),
-            decoration: const BoxDecoration(
-              color: Color.fromRGBO(194, 152, 95, 1)
-              // gradient: LinearGradient(colors: [
-              //   Color.fromRGBO(235, 235, 235, 1),
-              //   Color.fromRGBO(194, 152, 95, 1)
-              // ], begin: FractionalOffset(1, 0)),
-            ),
-            height: 1000,
-            width: sideOpen.isFalse ? 50 : 100,
-            child: Column(
-              children: <Widget>[
-                Container(
-                 margin: const EdgeInsets.only(top: 60),
-                  child: containerSidebar(Icons.shopping_cart_outlined, "Vender",
-                      colorActive: active == "sale" ? true : false,
-                      route: "/home"),
-                ),
-                containerSidebar(Icons.work_outline_outlined, "Produtos",
-                    colorActive: active == "product" ? true : false,
-                    route: "/categories"),
-                containerSidebar(Icons.assessment_outlined, "Relatórios",
-                    colorActive: active == "reports" ? true : false,
-                    route: "/reports"),
-                // containerSidebar(Icons.brightness_5_rounded, "Configuração",
-                //     colorActive: active == "config" ? true : false,
-                //     route: "/config"),
-                containerSidebar(Icons.power_settings_new, "Sair"),
-              ],
-            ),
-          )),
+    return Container(
+      decoration: const BoxDecoration(
+        color: backgroundColorLogo
+      ),
+      width: 100,
+      child: Column(
+        children: <Widget>[
+          Container(
+            margin: const EdgeInsets.only(top: 60),
+            child: containerSidebar(Icons.shopping_cart_outlined, "Vender",
+                colorActive: active == "sale" ? true : false,
+                route: "/home"),
+          ),
+          containerSidebar(Icons.work_outline_outlined, "Produtos",
+              colorActive: active == "product" ? true : false,
+              route: Routes.PRODUCTS),
+          containerSidebar(Icons.work_outline_outlined, "Categorias",
+              colorActive: active == "product" ? true : false,
+              route: Routes.CATEGORIES),
+          containerSidebar(Icons.assessment_outlined, "Relatórios",
+              colorActive: active == "reports" ? true : false,
+              route: "/reports"),
+          containerSidebar(Icons.brightness_5_rounded, "Configuração",
+              colorActive: active == "config" ? true : false,
+              route: "/config"),
+          containerSidebar(Icons.power_settings_new, "Sair"),
+        ],
+      ),
     );
   }
 
@@ -95,7 +90,7 @@ class Sidebar {
                     ? const Color.fromRGBO(36, 33, 26, 1.0)
                     : Colors.white70,
               ),
-              sideOpen.isFalse
+              sideOpen.isTrue
                   ? const Text("")
                   : Text(
                       text,

@@ -118,7 +118,7 @@ class HomeView extends GetView<HomeController> {
       content: SizedBox(
         width: 100,
         child: TextField(
-          controller: controller.allDiscount,
+          controller: controller.discount,
           textAlign: TextAlign.end,
           decoration: const InputDecoration(suffixText: "%"),
         ),
@@ -238,27 +238,28 @@ class HomeView extends GetView<HomeController> {
           color: Colors.black12,
         ),
         itemBuilder: (BuildContext context, int index) {
+          var _product = controller.allProductSales[index];
           return ListTile(
               onTap: () {
-                controller.discount.value = double.parse(
-                    controller.allProductSales[index]["discount"].toString());
-                controller.subTotal.value = controller.valueDiscountAll(
-                    controller.allProductSales[index]["discount"].toString(),
-                    (controller.allProductSales[index]["saleValue"] *
-                            controller.allProductSales[index]["qts"])
-                        .toString(),
-                    calc: true);
-                controller.nameProduct.value =
-                    controller.allProductSales[index]["product"].toString();
-             if(controller.allProductSales[index]["image"] != null){
-               controller.image.value =
-                   controller.allProductSales[index]["image"].toString();
-             }
-                controller.sizeProduct.value =
-                    controller.allProductSales[index]["size"].toString();
-                controller.codeProduct.value =
-                    controller.allProductSales[index]["code"].toString();
-                controller.productSelect.value = true;
+             //    controller.discount.value = double.parse(
+             //        controller.allProductSales[index]["discount"].toString());
+             //    controller.subTotal.value = controller.valueDiscountAll(
+             //        controller.allProductSales[index]["discount"].toString(),
+             //        (controller.allProductSales[index]["saleValue"] *
+             //                controller.allProductSales[index]["qts"])
+             //            .toString(),
+             //        calc: true);
+             //    controller.nameProduct.value =
+             //        controller.allProductSales[index]["product"].toString();
+             // if(controller.allProductSales[index]["image"] != null){
+             //   controller.image.value =
+             //       controller.allProductSales[index]["image"].toString();
+             // }
+             //    controller.sizeProduct.value =
+             //        controller.allProductSales[index]["size"].toString();
+             //    controller.codeProduct.value =
+             //        controller.allProductSales[index]["code"].toString();
+             //    controller.productSelect.value = true;
               },
               tileColor: Colors.white.withOpacity(0.8),
               title: listProductInfo(index));
@@ -364,7 +365,7 @@ class HomeView extends GetView<HomeController> {
                       double.parse(controller.allProductSales[index]["saleValue"].toString());
                     controller.saleValuesFinal.value =
                         double.parse(controller.allProductSales[index]["saleValue"].toString());
-                    controller.discountGroup.text = controller
+                    controller.discount.text = controller
                         .allProductSales[index]["discount"]
                         .toString();
                     controller.idSales =
@@ -549,7 +550,7 @@ class HomeView extends GetView<HomeController> {
               alignment: Alignment.centerRight,
               child: TextField(
                 textAlign: TextAlign.end,
-                controller: controller.discountGroup,
+                controller: controller.discount,
                 onChanged: (value) {
                   controller.valueDiscountAll(
                       value,
@@ -602,7 +603,7 @@ class HomeView extends GetView<HomeController> {
             controller.updateQts.value--;
           }
           controller.valueDiscountAll(
-              controller.discountGroup.text,
+              controller.discount.text,
               (controller.valueProduct.value * controller.updateQts.value)
                   .toString());
         },
@@ -823,8 +824,8 @@ class HomeView extends GetView<HomeController> {
                               fontSize: 16),
                         ),
                       ),
-                      Text(
-                        controller.discount.value.round().toString() + " %",
+                      Text('',
+                        // controller.discount.value.round().toString() + " %",
                         style: const TextStyle(color: Colors.white),
                       ),
                     ],

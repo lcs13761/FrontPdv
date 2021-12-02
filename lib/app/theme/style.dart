@@ -7,10 +7,18 @@ import 'package:get/get.dart';
 const whiteConstColor = Color.fromRGBO(255, 255, 255, 0.8);
 const grayColor =  Color.fromRGBO(204, 204, 204, 0.8);
 const styleColorBlue = Color.fromRGBO(0, 103, 254, 1);
+const backgroundColorLogo =  Color.fromRGBO(191, 147, 72, 1.0);
+const colorDark =  Color.fromRGBO(43, 43, 43, 1.0);
+const colorBackgroundCard = Color.fromRGBO(240, 240, 240, 1);
+const backgroundColorDark =  Color.fromRGBO(204, 204, 204, 1.0);
+
 final colorStyleInput =  TextStyle(
   color: Colors.white.withOpacity(0.8),
 );
 
+const colorAndSizeRegisterProduct = TextStyle(
+    color:colorDark,
+    fontSize: 16);
 
 final showPassword =
 Icon(Icons.remove_red_eye_sharp, color: Colors.white.withOpacity(0.9));
@@ -23,9 +31,16 @@ const borderColorFocus = OutlineInputBorder(
       color: Color.fromRGBO(0, 103, 254, 1),
     ));
 
+const borderFocusGray = OutlineInputBorder(
+    borderSide: BorderSide(
+      color: grayColor,
+    ));
+
 const borderColor = OutlineInputBorder(
     borderSide: BorderSide(color: Color.fromRGBO(255, 255, 255, 0.9)));
 
+const borderDark = OutlineInputBorder(
+    borderSide: BorderSide(color: grayColor));
 
 const errorBorder = OutlineInputBorder(
     borderSide: BorderSide(

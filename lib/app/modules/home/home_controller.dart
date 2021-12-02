@@ -44,14 +44,7 @@ class HomeController extends GetxController {
   @override
   void onInit() async{
     super.onInit();
-     if (store.read("sales").toString().isEmpty) {
-
-      allProductSales.addAll(store.read("sales"));
-      calcSaleNow();
-    }
-    if(store.read("client").toString().isEmpty){
-        client.text = store.read("client");
-    }
+    await getSales();
     qts.text = "1";
   }
 
@@ -60,6 +53,15 @@ class HomeController extends GetxController {
     super.onClose();
     closeSale();
 
+  }
+
+  Future getSales() async{
+
+    Map _product = await sale.index();
+
+    allProductSales.clear();
+    allProductSales.addAll(_product["data"]);
+    //listSale(_product["data"]);
   }
 
   closeSale() async{
@@ -77,7 +79,7 @@ class HomeController extends GetxController {
   void getAllSalesNow() async {
     await store.remove("sales");
     store.write("sales", allProductSales);
-    calcSaleNow();
+    discountProductView(allProductSales);
   }
   valueDiscountAll(String value, String valueCost, {calc}){
     var calcDiscount = double.parse(value) / 100;
@@ -88,28 +90,31 @@ class HomeController extends GetxController {
     saleValuesFinal.value = (double.parse(valueCost) - calcDiscount);
   }
 
-  void calcSaleNow() {
-    if (allProductSales.isEmpty) {
-      subTotal.value = 0.0;
-      image.value = "";
-      nameProduct.value = "";
-      codeProduct.value = "";
-      sizeProduct.value = "";
-      productSelect.value = false;
-    }
-    List values = store.read("sales");
-    total.value = 0.0;
-    for (var i = 0; i < values.length; i++) {
-      var calcDiscount =  double.parse(values[i]["discount"].toString()) / 100;
-
-      calcDiscount = (double.parse(values[i]["saleValue"].toString()) * values[i]["qts"]) * calcDiscount;
-      calcDiscount = (double.parse(values[i]["saleValue"].toString()) * values[i]["qts"]) - calcDiscount ;
+  void listSale(_product) {
+    int _qts = 0;
+    var i = 0;
+    double _value = 0.0;
+    for (var index in _product) {
+      var calcDiscount = discountProductView(index);
+      _value =
+          _value + calcDiscount;
+      _qts = _qts + index["qts"] as int ;
       if (i == 0) {
         subTotal.value = calcDiscount;
       }
-      total.value = total.value + calcDiscount;
+      i++;
     }
+    total.value = _value;
   }
+
+  discountProductView(_product){
+
+    var value = _product["saleValue"] * _product["qts"];
+    var calcDiscount = _product['discount'] / 100;
+    calcDiscount = value * calcDiscount;
+    return (value - calcDiscount);
+  }
+
 
   void searchProduct() async {
     await EasyLoading.show(
@@ -171,13 +176,13 @@ class HomeController extends GetxController {
       store.write("sales", response["result"]);
       allProductSales.clear();
       allProductSales.addAll(response["result"]);
-      calcSaleNow();
+     // calcSaleNow();
     }else{
       dialogSearch(response["error"]);
     }
     await EasyLoading.dismiss();
   }
-  
+
   void confirmSales() async{
 
     await EasyLoading.show(
@@ -192,7 +197,7 @@ class HomeController extends GetxController {
     }
     await EasyLoading.dismiss();
   }
-  
+
   void discountAll() async{
     await EasyLoading.show(
       maskType: EasyLoadingMaskType.custom,
@@ -206,11 +211,11 @@ class HomeController extends GetxController {
       allProductSales.clear();
       allProductSales.addAll(response["result"]);
       // discount.value = double.parse(discount.text);
-      calcSaleNow();
+      //calcSaleNow();
     }
     await EasyLoading.dismiss();
   }
-  
+
   void deleteProduct(index,String id) async {
     await EasyLoading.show(
       maskType: EasyLoadingMaskType.custom,
