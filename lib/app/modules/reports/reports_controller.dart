@@ -5,40 +5,43 @@ import 'package:lustore/app/model/sale.dart';
 
 
 class ReportsController extends GetxController {
+  RxBool completedLoading = false.obs;
   Sale sale = Sale();
   ApiReport report = ApiReport();
   final bool animate = false;
-  final RxList costValue = [].obs;
   RxList<OrdinalSales> data = <OrdinalSales>[].obs;
   RxList<ChartData> categorySales = <ChartData>[].obs;
   RxList<SalesProduct> salesProduct = <SalesProduct>[].obs;
   RxList<YearSales> yearSales = <YearSales>[].obs;
   Map monthSales = {};
-  Map costMonth = {};
 
   @override
   void onInit() async {
     super.onInit();
-    await salesAndCost();
+    await saleReport();
     await getCategoriesAndProductsBestSelling();
     await salesYear();
+    completedLoading.value = true;
   }
 
-  salesAndCost() async {
+  saleReport() async {
 
-    var resultGetSales = await report.getReportsSales();
-    monthSales = resultGetSales["result"];
+    Map _result = await report.getReportsSales();
+    if (_result.containsKey('result').toString().isEmpty) {
+      return;
+    }
+    monthSales = _result["result"];
+    monthSales.forEach((key, value) {
+      data.add(OrdinalSales(key,double.parse(value.toString())));
+    });
 
-      monthSales.forEach((key, value) {
-        data.add(OrdinalSales(key,double.parse(value.toString())));
-      });
 
   }
 
   getCategoriesAndProductsBestSelling() async {
 
-    var result = await report.getCategoriesAndProductsBestSelling();
-    if(result["result"].length == 0){
+    Map result = await report.getCategoriesAndProductsBestSelling();
+    if(result["result"].isEmpty){
       return;
     }
 
@@ -49,6 +52,7 @@ class ReportsController extends GetxController {
     Map products = result["result"]["products"];
     orders = products.entries.toList()..sort((a,b) => b.value.compareTo(a.value));
     products..clear()..addEntries(orders);
+
     var i = 0;
     categories.forEach((key, value) {
        if(i < 5){
@@ -56,6 +60,7 @@ class ReportsController extends GetxController {
        }
        i++;
      });
+
      i = 0;
      products.forEach((key, value) {
        if(i < 5){

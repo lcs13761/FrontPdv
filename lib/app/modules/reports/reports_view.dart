@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:lustore/app/modules/sidebar/sidebar.dart';
+import 'package:lustore/app/theme/style.dart';
 import 'reports_controller.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -18,7 +19,16 @@ class ReportsView extends GetView<ReportsController> {
         children: <Widget>[
           sidebar.side("reports"),
           Expanded(
-            child: bodyReports(),
+            child: Obx((){
+              if(controller.completedLoading.isFalse){
+                return const Center(
+                  child: CircularProgressIndicator(
+                    color: styleColorBlue,
+                  ),
+                );
+              }
+              return bodyReports();
+            }),
           )
         ],
       ),
@@ -60,15 +70,6 @@ class ReportsView extends GetView<ReportsController> {
           borderWidth: 1,
           tooltipBehavior: TooltipBehavior(enable: true),
           series: <CartesianSeries<dynamic, String>>[
-            ColumnSeries<dynamic, String>(
-                width: 0.5,
-                spacing: 0.2,
-                dataSource: controller.data.toList(),
-                xValueMapper: (dynamic sales, _) => sales.year,
-                yValueMapper: (dynamic sales, _) => sales.cost,
-                name: 'custo do mês',
-                // Enable data label
-                dataLabelSettings: const DataLabelSettings(isVisible: true)),
             ColumnSeries<dynamic, String>(
                 width: 0.5,
                 spacing: 0.2,
