@@ -70,24 +70,8 @@ class ProductsController extends GetxController {
     }
   }
 
-
-  void deleteProduct(code, index) async {
-    await EasyLoading.show(
-      maskType: EasyLoadingMaskType.custom,
-    );
-    Get.back();
-
-    // var id = allProducts[index]["code"].toString();
-    // var verified = await product.destroy(id);
-    await EasyLoading.dismiss();
-    // if (verified == true) {
-    //   allProducts.removeAt(index);
-    // } else {
-    //   Get.defaultDialog(
-    //     onConfirm: () => Get.back(),
-    //     middleText: "Erro ao excluir o produto",
-    //   );
-    // }
+  Future deleteProduct(_id) async {
+    return await product.destroy(_id.toString());
   }
 
   void searchDd(String text) {

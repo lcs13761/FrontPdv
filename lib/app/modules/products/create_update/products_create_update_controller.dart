@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:extended_masked_text/extended_masked_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
@@ -67,5 +70,43 @@ class ProductsCreateUpdateController extends GetxController {
     size.text = _product["size"].toString();
 
   }
+
+  Future<dynamic> submitTypeAction() async {
+
+    var image =  fileImage;
+
+    List _images = [];
+    for(var valueImage in image){
+      if(valueImage['image'] != null && valueImage['image'].isNotEmpty && File(valueImage['image'].toString()).isAbsolute){
+        String _image = await upload.upload(valueImage['image']);
+        _images.add({
+          'id' : null,
+          'image' : _image
+        });
+      }else{
+        _images.addAll([{
+          'id': valueImage!['id'],
+          'image': valueImage['image']
+        }]);
+      }
+    }
+
+    product.code = cod.text;
+    product.product = productName.text;
+    product.description = description.text;
+    product.costValue = cost.numberValue;
+    product.saleValue = value.numberValue;
+    product.size = size.text;
+    product.qts = int.parse(qts.text);
+    product.category = Category(id: int.parse(stringCategory.toString()));
+    product.image = _images.map((e) => e).toList();
+
+    if(typeAction.value == "create") return await product.store(product);
+    if(typeAction.value == "update") return await product.update(product,id);
+
+  }
+
+
+
 
 }

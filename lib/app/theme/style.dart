@@ -1,5 +1,6 @@
 import 'package:cool_alert/cool_alert.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 
 
@@ -12,8 +13,25 @@ const colorDark =  Color.fromRGBO(43, 43, 43, 1.0);
 const colorBackgroundCard = Color.fromRGBO(240, 240, 240, 1);
 const backgroundColorDark =  Color.fromRGBO(204, 204, 204, 1.0);
 
+
+Future loadingDesk() async{
+  await EasyLoading.show(
+    maskType: EasyLoadingMaskType.custom,
+  );
+}
+
+Future dismiss() async{
+  await EasyLoading.dismiss();
+}
+
+
 final colorStyleInput =  TextStyle(
   color: Colors.white.withOpacity(0.8),
+);
+
+const colorAndSizeWhite = TextStyle(
+    color:whiteConstColor,
+    fontSize: 16
 );
 
 const colorAndSizeRegisterProduct = TextStyle(
@@ -70,15 +88,19 @@ void error(context, String text) {
       barrierDismissible: false);
 }
 
-void success(String text,context,{action}) {
+void success(String text,context,{action,route}) {
   CoolAlert.show(
       onConfirmBtnTap: () {
+        if(route != null){
+          Get.offAllNamed(route);
+        }
         if (action == "back") {
           Get.back();
           Get.back();
         }else{
           Get.back();
         }
+
       },
       context: context,
       text: text,

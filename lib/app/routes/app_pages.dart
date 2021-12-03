@@ -1,7 +1,6 @@
 import 'package:get/get.dart';
 
-import 'package:lustore/app/modules/addProduct/add_product_binding.dart';
-import 'package:lustore/app/modules/addProduct/add_product_view.dart';
+
 import 'package:lustore/app/modules/categories/categories_binding.dart';
 import 'package:lustore/app/modules/categories/categories_view.dart';
 import 'package:lustore/app/modules/config/config_binding.dart';
@@ -49,11 +48,6 @@ class AppPages {
           ),
         ]
     ),
-    GetPage(
-        name: _Paths.ADD_PRODUCT,
-        page: () => const AddProductView(),
-        binding: AddProductBinding(),
-        transition: Transition.fadeIn),
     GetPage(
         name: _Paths.REPORTS,
         page: () => const ReportsView(),

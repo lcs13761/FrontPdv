@@ -95,7 +95,9 @@ class ProductsView extends GetView<ProductsController> {
       child: Row(
         children: <Widget>[
           ElevatedButton.icon(
-            onPressed: () {},
+            onPressed: () {
+              Get.offAllNamed(Routes.PRODUCTS_CREATE_UPDATE);
+            },
             style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.all(15),
                 minimumSize: const Size(10, 55),
@@ -185,17 +187,18 @@ class ProductsView extends GetView<ProductsController> {
                   ),
               builderDelegate: PagedChildBuilderDelegate(
                   itemBuilder: (BuildContext context, item, index) {
-                return bodyProductList(item, index);
+                    index = index + 1;
+                return bodyProductList(item, index,context);
               }));
         }),
       ),
     );
   }
 
-  Widget bodyProductList(_product, index) {
+  Widget bodyProductList(_product, index,context) {
     return Row(
       children: <Widget>[
-        expandedFieldBody(_product["id"].toString()),
+        expandedFieldBody(index.toString()),
         Container(
           height: 50,
           width: 50,
@@ -214,14 +217,14 @@ class ProductsView extends GetView<ProductsController> {
                   alignment: Alignment.center,
                   child: Text(
                     _product['product'].toString().substring(0, 2),
-                    // style: colorAndSizeRegisterProduct),
+                    style: colorAndSizeWhite,
                   )),
         ),
         expandedFieldBody(_product["product"].toString()),
         expandedFieldBody(_product["qts"].toString()),
         expandedFieldBody(_product["saleValue"].toString()),
         expandedFieldBody(_product["category"]['category'].toString()),
-        expandedActionButton(_product, index),
+        expandedActionButton(_product, index,context),
       ],
     );
   }
@@ -235,7 +238,7 @@ class ProductsView extends GetView<ProductsController> {
     );
   }
 
-  Widget expandedActionButton(_product, index) {
+  Widget expandedActionButton(_product, index,context) {
     return Expanded(
         child: Row(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -255,7 +258,7 @@ class ProductsView extends GetView<ProductsController> {
         ),
         ElevatedButton(
           onPressed: () async {
-            dialogGet("Deseja excluir o produto?", "Confirmar", index);
+            dialogDestroy(_product,context);
           },
           style: ElevatedButton.styleFrom(
               primary: Colors.red, minimumSize: const Size(40, 45)),
@@ -265,14 +268,14 @@ class ProductsView extends GetView<ProductsController> {
     ));
   }
 
-  void dialogGet(String text, String confirm, index) {
+  void dialogDestroy(_product,context) {
     Get.dialog(
       AlertDialog(
-        content: SingleChildScrollView(
-          padding: const EdgeInsets.all(10),
+        content: const SingleChildScrollView(
+          padding: EdgeInsets.all(10),
           child: Text(
-            text,
-            style: const TextStyle(
+            "Deseja excluir o produto?",
+            style: TextStyle(
               fontSize: 22,
               letterSpacing: 1,
             ),
@@ -298,11 +301,23 @@ class ProductsView extends GetView<ProductsController> {
                 minimumSize: const Size(60, 45),
               ),
               onPressed: () async {
-
+                Get.back();
+                loadingDesk();
+                await 1.delay();
+                var _response = await controller.deleteProduct(_product['id']);
+                if (_response != true) {
+                  dismiss();
+                  error(context, _response["error"]);
+                } else {
+                  controller.allProducts.value.itemList!.remove(_product);
+                  // ignore: invalid_use_of_visible_for_testing_member, invalid_use_of_protected_member
+                  controller.allProducts.notifyListeners();
+                  dismiss();
+                }
               },
-              child: Text(
-                confirm,
-                style: const TextStyle(fontSize: 22),
+              child: const Text(
+                "Confirmar",
+                style: TextStyle(fontSize: 22),
               ),
             ),
           ),
