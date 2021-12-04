@@ -1,8 +1,11 @@
 import 'package:get/get.dart';
 
-
 import 'package:lustore/app/modules/categories/categories_binding.dart';
 import 'package:lustore/app/modules/categories/categories_view.dart';
+import 'package:lustore/app/modules/config/admin/config_admin_binding.dart';
+import 'package:lustore/app/modules/config/admin/config_admin_view.dart';
+import 'package:lustore/app/modules/config/change_password/config_change_password_binding.dart';
+import 'package:lustore/app/modules/config/change_password/config_change_password_view.dart';
 import 'package:lustore/app/modules/config/config_binding.dart';
 import 'package:lustore/app/modules/config/config_view.dart';
 import 'package:lustore/app/modules/home/home_binding.dart';
@@ -46,8 +49,7 @@ class AppPages {
             page: () => ProductsCreateUpdateView(),
             binding: ProductsCreateUpdateBinding(),
           ),
-        ]
-    ),
+        ]),
     GetPage(
         name: _Paths.REPORTS,
         page: () => const ReportsView(),
@@ -62,7 +64,20 @@ class AppPages {
         name: _Paths.CONFIG,
         page: () => const ConfigView(),
         binding: ConfigBinding(),
-        transition: Transition.fadeIn),
+        transition: Transition.fadeIn,
+        children: [
+          GetPage(
+            name: _Paths.CONFIG_CHANGE_PASSWORD,
+            page: () => ConfigChangePasswordView(),
+            binding: ConfigChangePasswordBinding(),
+          ),
+          GetPage(
+            name: _Paths.CONFIG_ADMIN,
+            page: () => ConfigAdminView(),
+            binding: ConfigAdminBinding(),
+          ),
+
+        ]),
     GetPage(
         name: _Paths.LOGIN,
         page: () => LoginView(),
@@ -80,6 +95,5 @@ class AppPages {
         page: () => const SplashView(),
         binding: SplashBinding(),
         transition: Transition.fadeIn),
-
   ];
 }

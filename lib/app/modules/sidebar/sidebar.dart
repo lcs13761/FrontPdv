@@ -29,7 +29,7 @@ class Sidebar {
           containerSidebar(Icons.work_outline_outlined, "Produtos",
               colorActive: active == "product" ? true : false,
               route: Routes.PRODUCTS),
-          containerSidebar(Icons.work_outline_outlined, "Categorias",
+          containerSidebar(Icons.format_list_bulleted, "Categorias",
               colorActive: active == "category" ? true : false,
               route: Routes.CATEGORIES),
           containerSidebar(Icons.assessment_outlined, "Relatórios",

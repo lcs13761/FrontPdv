@@ -15,7 +15,10 @@ abstract class Routes {
   static const SPLASH = _Paths.SPLASH;
   static const LOGIN_FORGET_PASSWORD =
       _Paths.LOGIN + _Paths.LOGIN_FORGET_PASSWORD;
-  static const PRODUCTS_CREATE_UPDATE = _Paths.PRODUCTS + _Paths.PRODUCTS_CREATE_UPDATE;
+  static const PRODUCTS_CREATE_UPDATE =
+      _Paths.PRODUCTS + _Paths.PRODUCTS_CREATE_UPDATE;
+  static const CONFIG_CHANGE_PASSWORD = _Paths.CONFIG + _Paths.CONFIG_CHANGE_PASSWORD;
+  static const CONFIG_ADMIN = _Paths.CONFIG + _Paths.CONFIG_ADMIN;
 }
 
 abstract class _Paths {
@@ -28,4 +31,6 @@ abstract class _Paths {
   static const SPLASH = '/splash';
   static const LOGIN_FORGET_PASSWORD = '/forget-password';
   static const PRODUCTS_CREATE_UPDATE = '/create-update';
+  static const CONFIG_CHANGE_PASSWORD = '/change-password';
+  static const CONFIG_ADMIN = '/admin';
 }

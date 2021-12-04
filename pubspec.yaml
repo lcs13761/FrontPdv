@@ -36,6 +36,7 @@ dev_dependencies:
 flutter: 
   assets: 
     - images/logo.png
+    - images/avatar.jpg
   uses-material-design: true
 
 get_cli: 

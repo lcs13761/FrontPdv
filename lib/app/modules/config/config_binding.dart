@@ -5,8 +5,8 @@ import 'config_controller.dart';
 class ConfigBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<ConfigController>(
-      () => ConfigController(),
+    Get.put<ConfigController>(
+      ConfigController(),
     );
   }
 }

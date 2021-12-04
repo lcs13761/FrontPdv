@@ -38,6 +38,14 @@ const colorAndSizeRegisterProduct = TextStyle(
     color:colorDark,
     fontSize: 16);
 
+
+const showPasswordDark =
+Icon(Icons.remove_red_eye_sharp, color: colorDark);
+
+
+const hiddenPasswordDark =
+Icon(Icons.visibility_off, color: colorDark);
+
 final showPassword =
 Icon(Icons.remove_red_eye_sharp, color: Colors.white.withOpacity(0.9));
 
