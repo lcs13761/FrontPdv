@@ -27,7 +27,7 @@ class ReportsController extends GetxController {
   saleReport() async {
 
     Map _result = await report.getReportsSales();
-    if (_result.containsKey('result').toString().isEmpty) {
+    if (_result.containsKey('result') && _result['result'].isEmpty) {
       return;
     }
     monthSales = _result["result"];
@@ -71,7 +71,7 @@ class ReportsController extends GetxController {
 
   salesYear() async{
       var listSales =  await report.annualProfit();
-      if (listSales["result"].length == 0) {}
+      if (listSales["result"].isEmpty) return;
       Map yearList = listSales["result"];
       var yearMin = DateTime.now().year - 5;
       yearList.forEach((key, value) {

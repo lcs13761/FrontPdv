@@ -26,5 +26,9 @@ class ConfigController extends GetxController {
     inLoading.value = false;
   }
 
+  Future destroy(_id) async{
+      return await user.destroy(_id.toString());
+  }
+
 
 }

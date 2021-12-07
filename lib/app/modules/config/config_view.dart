@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 import 'package:lustore/app/modules/sidebar/sidebar.dart';
 import 'package:lustore/app/routes/app_pages.dart';
 import 'package:lustore/app/theme/style.dart';
-import '../../sidebar/sidebar.dart';
 import 'config_controller.dart';
 
 class ConfigView extends GetView<ConfigController> {
@@ -50,8 +49,7 @@ class ConfigView extends GetView<ConfigController> {
       padding: const EdgeInsets.only(right: 8.0),
       child: ElevatedButton.icon(
         onPressed: () {
-          // controller.nameCategory.text = "";
-          // action(context);
+          Get.toNamed(Routes.CONFIG_CHANGE_PASSWORD, arguments: controller.administrators);
         },
         style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.all(15),
@@ -155,13 +153,13 @@ class ConfigView extends GetView<ConfigController> {
     );
   }
 
-  Widget buttonAction(icon, _category, context, {actionButton, index}) {
+  Widget buttonAction(icon, _admin, context, {actionButton, index}) {
     return InkWell(
       onTap: () {
         if (actionButton != null) {
-
+                Get.toNamed(Routes.CONFIG_ADMIN,arguments: _admin);
         } else {
-          // defaultDialogDelete(_category,context);
+            defaultDialogDelete(_admin,context);
         }
       },
       mouseCursor: SystemMouseCursors.click,
@@ -182,6 +180,45 @@ class ConfigView extends GetView<ConfigController> {
         ),
         child: Icon(icon),
       ),
+    );
+  }
+
+  void defaultDialogDelete(_category,context) {
+    Get.defaultDialog(
+      title: "Excluir Administrado",
+      textCancel: "Cancelar",
+      middleText: "Desejar excluir o Administrado?",
+      radius: 5,
+      cancel: buttonActionDialogDestroy(Colors.black,'Cancelar', context,color: Colors.white),
+      confirm: buttonActionDialogDestroy(Colors.white, "Confirmar",context,admin: _category),
+    );
+  }
+
+  Widget buttonActionDialogDestroy(Color colorText,String text,context,{admin,color}){
+    return  ElevatedButton(
+      onPressed: () async{
+        Get.back();
+        if(admin != null){
+          loadingDesk();
+          var _response = await controller.destroy(admin['id'].toString());
+          if(_response != true){
+            dismiss();
+            error(context, 'Administrado não pode ser removido');
+            return;
+          }
+
+          controller.administrators.remove(admin);
+          dismiss();
+          success('Administrado removida com sucesso',context);
+        }
+      },
+      style: ElevatedButton.styleFrom(
+        minimumSize: const Size(30,50),
+        padding: const EdgeInsets.all(5),
+        primary: color,
+        shadowColor: Colors.grey.withOpacity(0.5),
+      ),
+      child: Text(text,style: TextStyle(color: colorText),),
     );
   }
 }

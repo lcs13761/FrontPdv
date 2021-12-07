@@ -40,7 +40,7 @@ class AppPages {
         transition: Transition.fadeIn),
     GetPage(
         name: _Paths.PRODUCTS,
-        page: () => const ProductsView(),
+        page: () =>  const ProductsView(),
         binding: ProductsBinding(),
         transition: Transition.fadeIn,
         children: [

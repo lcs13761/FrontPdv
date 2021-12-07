@@ -3,6 +3,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 import 'package:get/get.dart';
 import 'package:lustore/app/modules/sidebar/sidebar.dart';
+import 'package:lustore/app/routes/app_pages.dart';
 import 'package:lustore/app/theme/style.dart';
 
 import 'config_admin_controller.dart';
@@ -53,7 +54,7 @@ class ConfigAdminView extends GetView<ConfigAdminController> {
           Container(
               alignment: Alignment.center,
               child: Text(
-                  controller.typeAction == 'create'
+                  controller.typeAction.value == 'create'
                       ? "Adicionar Administrado"
                       : "Editar Administrado",
                   style: const TextStyle(
@@ -61,11 +62,12 @@ class ConfigAdminView extends GetView<ConfigAdminController> {
                     fontWeight: FontWeight.bold,
                     letterSpacing: 1,
                   ))),
-          inputProduct("Nome*", controller.name, 'name', required: true),
-          inputProduct("E-mail*", controller.email, 'email', required: true),
-          inputProduct("Telefone Celular", controller.phone, 'phone'),
-          passwordField("Senha", controller.password, 'phone'),
-          passwordField("Confirmar Senha", controller.passwordConfirmation, 'phone'),
+          inputForm("Nome*", controller.name, 'name', required: true),
+          inputForm("E-mail*", controller.email, 'email', required: true),
+          inputForm("Telefone Celular", controller.phone, 'phone'),
+          passwordField("Senha", controller.password, 'password'),
+          passwordField("Confirmar Senha", controller.passwordConfirmation,
+              'password_confirmation'),
           const Text(
             "Endereço (Opicional)",
             style: TextStyle(
@@ -74,13 +76,13 @@ class ConfigAdminView extends GetView<ConfigAdminController> {
               letterSpacing: 1,
             ),
           ),
-          inputProduct("CEP", controller.cep, 'cep'),
-          inputProduct("Estado", controller.state, 'state'),
-          inputProduct("Cidade", controller.city, 'city'),
-          inputProduct("Bairro", controller.district, 'district'),
-          inputProduct("Rua", controller.street, 'street'),
-          inputProduct("Nº", controller.number, 'number'),
-          inputProduct("Complemento", controller.complement, 'complement'),
+          inputForm("CEP", controller.cep, 'cep'),
+          inputForm("Estado", controller.state, 'state'),
+          inputForm("Cidade", controller.city, 'city'),
+          inputForm("Bairro", controller.district, 'district'),
+          inputForm("Rua", controller.street, 'street'),
+          inputForm("Nº", controller.number, 'number'),
+          inputForm("Complemento", controller.complement, 'complement'),
           buttonSave(context)
         ],
         staggeredTiles: const [
@@ -104,17 +106,23 @@ class ConfigAdminView extends GetView<ConfigAdminController> {
     );
   }
 
-  Widget inputProduct(String text, type, key, {filter, required}) {
+  Widget inputForm(String text, type, key, {filter, required}) {
     return Container(
         margin: const EdgeInsets.only(right: 30),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             TextFormField(
+              onChanged: (value) {
+                if (key == 'cep') controller.apiCompleteAddress(value);
+              },
               validator: (value) {
                 if (required == true) {
                   if (value == null || value.isEmpty) {
                     return "Preencha esse campo";
+                  }
+                  if(key == 'email'){
+                   return emailValidation(value);
                   }
                   return null;
                 }
@@ -128,23 +136,35 @@ class ConfigAdminView extends GetView<ConfigAdminController> {
               controller: type,
               inputFormatters: filter,
             ),
-// Obx(() {
-//   // if (controller.errors.containsKey(key)) {
-//     return Container(
-//       margin: const EdgeInsets.only(),
-//       child: Text('',
-//         // controller.errors[key][0].toString(),
-//         style: const TextStyle(color: Colors.red),
-//       ),
-//     );
-//   // }
-//   return const Text('');
-// }),
+            Obx(() {
+              if (controller.errors.containsKey(key)) {
+                return Container(
+                  margin: const EdgeInsets.only(),
+                  child: Text(
+                    controller.errors[key][0].toString(),
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                );
+              }
+              return const Text('');
+            }),
           ],
         ));
   }
 
+  dynamic emailValidation(_value){
+    bool _emailValid = RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(_value);
+    if(!_emailValid){
+      return "Email inválido";
+    }
+
+    return null;
+  }
+
   Widget passwordField(String text, controllerName, key) {
+    if (!controller.visiblePassword.containsKey(key)) {
+      controller.visiblePassword[key] = false;
+    }
 
     return Obx(() {
       if (controller.typeAction.value == "create") {
@@ -153,37 +173,38 @@ class ConfigAdminView extends GetView<ConfigAdminController> {
           children: <Widget>[
             Container(
               margin: const EdgeInsets.only(right: 30),
-              child: Obx(
-                () => TextFormField(
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Preencha esse campo";
-                    }
-                    return null;
-                  },
-                  keyboardType: TextInputType.visiblePassword,
-                  obscureText: controller.visiblePassword[key] ? false : true,
-                  autocorrect: false,
-                  enableSuggestions: true,
-                  controller: controllerName,
-                  style: const TextStyle(color: colorDark),
-                  decoration: InputDecoration(
-                    suffixIcon: InkWell(
-                      onTap: () {
-                        if (controller.visiblePassword[key] == true) {
-                          controller.visiblePassword[key] = false;
-                        } else {
-                          controller.visiblePassword[key] = true;
-                        }
-                      },
-                      child: controller.visiblePassword[key]
-                          ? hiddenPasswordDark
-                          : showPasswordDark,
-                    ),
-                    label: Text(
-                      text,
-                      style: const TextStyle(color: colorDark, fontSize: 16),
-                    ),
+              child: TextFormField(
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Preencha esse campo";
+                  }
+                  if(key == 'password_confirmation'){
+                     return validatePassword(value);
+                  }
+                  return null;
+                },
+                keyboardType: TextInputType.visiblePassword,
+                obscureText: controller.visiblePassword[key] ? false : true,
+                autocorrect: false,
+                enableSuggestions: true,
+                controller: controllerName,
+                style: const TextStyle(color: colorDark),
+                decoration: InputDecoration(
+                  suffixIcon: InkWell(
+                    onTap: () {
+                      if (controller.visiblePassword[key] == true) {
+                        controller.visiblePassword[key] = false;
+                      } else {
+                        controller.visiblePassword[key] = true;
+                      }
+                    },
+                    child: controller.visiblePassword[key]
+                        ? hiddenPasswordDark
+                        : showPasswordDark,
+                  ),
+                  label: Text(
+                    text,
+                    style: const TextStyle(color: colorDark, fontSize: 16),
                   ),
                 ),
               ),
@@ -209,6 +230,13 @@ class ConfigAdminView extends GetView<ConfigAdminController> {
     });
   }
 
+ dynamic validatePassword(_value){
+    if(controller.password.text != _value){
+        return 'As senhas não coincidem';
+    }
+    return null;
+  }
+
   Widget buttonSave(context) {
     return Container(
         margin: const EdgeInsets.only(bottom: 20),
@@ -221,19 +249,21 @@ class ConfigAdminView extends GetView<ConfigAdminController> {
                 minimumSize: const Size(100, 50),
               ),
               onPressed: () async {
-                if (_formKey.currentState!.validate()) {}
-                // loadingDesk();
-                // var _response = await controller.submitTypeAction();
-                //
-                // await 1.delay();
-                // Get.back();
-                // if (_response == true) {
-                //   success("sucesso", context, route: Routes.PRODUCTS);
-                // } else {
-                //   controller.errors.clear();
-                //   controller.errors.addAll(_response);
-                // }
-                // dismiss();
+                if (_formKey.currentState!.validate()) {
+                  loadingDesk();
+                  var _response = await controller.actionUser();
+                  print(_response);
+                  await 1.delay();
+                  if (_response == true) {
+                    success("sucesso", context, route: Routes.CONFIG);
+                    dismiss();
+                  } else {
+                    controller.errors.clear();
+                    controller.errors.addAll(_response);
+                    dismiss();
+                  }
+
+                }
               },
               child: const Text(
                 "Salvar",
@@ -246,7 +276,7 @@ class ConfigAdminView extends GetView<ConfigAdminController> {
                 style: ElevatedButton.styleFrom(
                     minimumSize: const Size(100, 50), primary: Colors.red),
                 onPressed: () {
-                  // Get.offAllNamed(Routes.PRODUCTS);
+                  Get.back();
                 },
                 child: const Text(
                   "Cancelar",

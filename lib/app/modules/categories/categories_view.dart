@@ -121,6 +121,7 @@ class CategoriesView extends GetView<CategoriesController> {
                         _category["category"]
                             .toString()
                             .toUpperCase(),
+                        textAlign: TextAlign.center,
                         style: TextStyle(
                           locale: const Locale("pt-BR"),
                           fontSize: 16,

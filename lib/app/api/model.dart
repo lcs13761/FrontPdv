@@ -11,10 +11,11 @@ abstract class Model {
     action = _action;
   }
 
-  Future<dynamic> index() async {
+  Future<dynamic> index({search}) async {
+    String _search = search != null ? '?product=' + search : '';
     String token = await auth.refreshJwt();
     final response = await http.get(
-      Uri.parse(url + action),
+      Uri.parse(url + action +  _search),
       headers: <String, String>{
         'Accept' : 'application/json',
         'Authorization': 'Bearer ' + token

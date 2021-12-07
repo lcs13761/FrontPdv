@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:lustore/app/api/api_brasil_address.dart';
@@ -17,7 +19,7 @@ class ConfigAdminController extends GetxController {
   TextEditingController number = TextEditingController();
   TextEditingController complement = TextEditingController();
   TextEditingController passwordConfirmation = TextEditingController();
-  TextEditingController asdfsadf = TextEditingController();
+  TextEditingController password = TextEditingController();
   Address address = Address();
   User user = User();
   int id = 0;
@@ -39,6 +41,7 @@ class ConfigAdminController extends GetxController {
   }
 
   updateType(_admin){
+    id = _admin['id'];
     name.text = _admin['name'];
     email.text = _admin['email'];
     phone.text = _admin['phone'] ?? '';
@@ -54,7 +57,7 @@ class ConfigAdminController extends GetxController {
     }
   }
 
-  Future updateUser() async{
+  Future actionUser() async{
 
     user.name = name.text;
     user.email = email.text;
@@ -73,8 +76,14 @@ class ConfigAdminController extends GetxController {
     }else{
       user.address = null;
     }
+  if(typeAction.value == 'create'){
+      user.level = 5.toString();
+      user.password = password.text;
+      user.password_confirmation = passwordConfirmation.text;
+      return await user.store(user);
+  }
 
-    return await user.update(user, id);
+  if(typeAction.value == 'update') return await user.update(user, id);
 
   }
 

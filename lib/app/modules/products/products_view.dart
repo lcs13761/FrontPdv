@@ -77,7 +77,13 @@ class ProductsView extends GetView<ProductsController> {
       child: TextField(
         controller: controller.searchProduct,
         onChanged: (text) {
-          controller.searchDd(text);
+          controller.nextPageProduct = '';
+          if (text.length > 3) {
+            controller.allProducts.refresh();
+          }
+          if (text.isEmpty) {
+            controller.allProducts.refresh();
+          }
         },
         decoration: const InputDecoration(
             hintText: 'Pesquisar',
@@ -96,7 +102,7 @@ class ProductsView extends GetView<ProductsController> {
         children: <Widget>[
           ElevatedButton.icon(
             onPressed: () {
-              Get.offAllNamed(Routes.PRODUCTS_CREATE_UPDATE);
+              Get.toNamed(Routes.PRODUCTS_CREATE_UPDATE);
             },
             style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.all(15),
@@ -127,7 +133,7 @@ class ProductsView extends GetView<ProductsController> {
         padding: const EdgeInsets.only(top: 15, bottom: 15),
         child: Row(
           children: <Widget>[
-            fieldTitle('id'),
+            fieldTitle('ID'),
             fieldImageTitle(),
             fieldTitle('Produto'),
             fieldTitle('Quantidade'),
@@ -187,15 +193,15 @@ class ProductsView extends GetView<ProductsController> {
                   ),
               builderDelegate: PagedChildBuilderDelegate(
                   itemBuilder: (BuildContext context, item, index) {
-                    index = index + 1;
-                return bodyProductList(item, index,context);
+                index = index + 1;
+                return bodyProductList(item, index, context);
               }));
         }),
       ),
     );
   }
 
-  Widget bodyProductList(_product, index,context) {
+  Widget bodyProductList(_product, index, context) {
     return Row(
       children: <Widget>[
         expandedFieldBody(index.toString()),
@@ -224,7 +230,7 @@ class ProductsView extends GetView<ProductsController> {
         expandedFieldBody(_product["qts"].toString()),
         expandedFieldBody(_product["saleValue"].toString()),
         expandedFieldBody(_product["category"]['category'].toString()),
-        expandedActionButton(_product, index,context),
+        expandedActionButton(_product, index, context),
       ],
     );
   }
@@ -238,7 +244,7 @@ class ProductsView extends GetView<ProductsController> {
     );
   }
 
-  Widget expandedActionButton(_product, index,context) {
+  Widget expandedActionButton(_product, index, context) {
     return Expanded(
         child: Row(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -258,7 +264,7 @@ class ProductsView extends GetView<ProductsController> {
         ),
         ElevatedButton(
           onPressed: () async {
-            dialogDestroy(_product,context);
+            dialogDestroy(_product, context);
           },
           style: ElevatedButton.styleFrom(
               primary: Colors.red, minimumSize: const Size(40, 45)),
@@ -268,7 +274,7 @@ class ProductsView extends GetView<ProductsController> {
     ));
   }
 
-  void dialogDestroy(_product,context) {
+  void dialogDestroy(_product, context) {
     Get.dialog(
       AlertDialog(
         content: const SingleChildScrollView(
@@ -325,5 +331,4 @@ class ProductsView extends GetView<ProductsController> {
       ),
     );
   }
-
 }

@@ -191,7 +191,7 @@ class LoginView extends GetView<LoginController> {
             Get.offAllNamed("/home");
             return;
           } else {
-            print(_response);
+
             await 1.delay();
             Get.back();
             error(context, _response);

@@ -241,16 +241,16 @@ class ProductsCreateUpdateView extends GetView<ProductsCreateUpdateController> {
               onPressed: () async{
                   loadingDesk();
                   var _response = await controller.submitTypeAction();
-
                   await 1.delay();
-                  Get.back();
                   if (_response == true) {
+                    dismiss();
                     success("sucesso", context, route: Routes.PRODUCTS);
                   } else {
                     controller.errors.clear();
                     controller.errors.addAll(_response);
+                    dismiss();
                   }
-                  dismiss();
+
               },
               child: const Text(
                 "Salvar",
@@ -263,7 +263,7 @@ class ProductsCreateUpdateView extends GetView<ProductsCreateUpdateController> {
                 style: ElevatedButton.styleFrom(
                     minimumSize: const Size(100, 50), primary: Colors.red),
                 onPressed: () {
-                  Get.offAllNamed(Routes.PRODUCTS);
+                  Get.back();
                 },
                 child: const Text(
                   "Cancelar",
