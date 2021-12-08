@@ -1,12 +1,8 @@
-// ignore_for_file: invalid_use_of_protected_member
-
 import 'dart:async';
-
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:lustore/app/model/product.dart';
 import 'package:lustore/app/model/user.dart';
 

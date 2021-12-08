@@ -28,7 +28,7 @@ class HomeView extends GetView<HomeController> {
             }
             if (event.isKeyPressed(LogicalKeyboardKey.f2)) {
               Get.back();
-              confirmSale();
+              confirmSale(context);
             }
             if (event.isKeyPressed(LogicalKeyboardKey.escape)) {
               Get.back();
@@ -58,7 +58,7 @@ class HomeView extends GetView<HomeController> {
               ),
               child: Container(
                 color: const Color.fromRGBO(194, 152, 95, 1),
-                child: priceSales(),
+                child: priceSales(context),
               ),
             ),
           ],
@@ -137,9 +137,10 @@ class HomeView extends GetView<HomeController> {
         ),
       ),
       confirm: ElevatedButton(
-        onPressed: () {
+        onPressed: () async {
           Get.back();
-          controller.discountAll();
+
+          await controller.addDiscountInProduct();
         },
         style: ElevatedButton.styleFrom(minimumSize: const Size(50, 40)),
         child: const Text(
@@ -309,31 +310,40 @@ class HomeView extends GetView<HomeController> {
 
   Widget productsSale() {
     return Obx(
-      () => ListView.separated(
-        itemCount: controller.allProductSales.length,
-        controller: ScrollController(),
-        separatorBuilder: (context, index) => const Divider(
-          height: 1,
-          color: Colors.black12,
-        ),
-        itemBuilder: (BuildContext context, int index) {
-          var _product = controller.allProductSales[index];
-          return InkWell(
-              highlightColor: Colors.white.withOpacity(0.8),
-              focusColor: Colors.white.withOpacity(0.8),
-              onTap: () {
-                controller.distributeInformation(_product);
-              },
-              child: _productInfoSale(_product, index, context));
-        },
-      ),
+      () {
+        if (controller.inLoading.isTrue) {
+          return const Center(
+            child: CircularProgressIndicator(
+              color: styleColorBlue,
+            ),
+          );
+        }
+        return ListView.separated(
+          itemCount: controller.allProductSales.length,
+          controller: ScrollController(),
+          separatorBuilder: (context, index) => const Divider(
+            height: 1,
+            color: Colors.black12,
+          ),
+          itemBuilder: (BuildContext context, int index) {
+            var _product = controller.allProductSales[index];
+            return InkWell(
+                highlightColor: Colors.white.withOpacity(0.8),
+                focusColor: Colors.white.withOpacity(0.8),
+                onTap: () {
+                  controller.distributeInformation(_product);
+                },
+                child: _productInfoSale(_product, index, context));
+          },
+        );
+      },
     );
   }
 
   Widget _productInfoSale(_product, index, context) {
     return Row(
       children: <Widget>[
-        expandedFieldBody(index.toString()),
+        expandedFieldBody((index + 1).toString()),
         Container(
           height: 50,
           width: 50,
@@ -354,8 +364,13 @@ class HomeView extends GetView<HomeController> {
         ),
         expandedFieldBody(_product['product']['product']),
         expandedFieldBody(_product['qts'].toString()),
-        expandedFieldBody(controller.formatter
-            .format(controller.discountProductView(_product))),
+        Obx(() {
+          if (controller.allProductSales[index]['discount'] > 0) {
+            return valueProductInDiscount(_product);
+          }
+          return expandedFieldBody(controller.formatter
+              .format(_product['saleValue'] * _product['qts']));
+        }),
         expandedFieldBody(_product['product']['size'].toString()),
         expandedActionButton(_product, index, context),
       ],
@@ -371,6 +386,29 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
+  Widget valueProductInDiscount(_product) {
+    var _subValue =
+        controller.formatter.format(_product['saleValue'] * _product['qts']);
+    var _total =
+        controller.formatter.format(controller.discountProductView(_product));
+    return Expanded(
+        child: ListTile(
+      title: Text(
+        _subValue,
+        style: const TextStyle(
+            fontSize: 14,
+            color: colorDark,
+            decoration: TextDecoration.lineThrough),
+        textAlign: TextAlign.center,
+      ),
+      subtitle: Text(
+        _total,
+        style: const TextStyle(fontSize: 16, color: Colors.black),
+        textAlign: TextAlign.center,
+      ),
+    ));
+  }
+
   Widget expandedActionButton(_product, index, context) {
     return Expanded(
         child: Row(
@@ -382,10 +420,12 @@ class HomeView extends GetView<HomeController> {
           child: ElevatedButton(
             onPressed: () async {
               controller.updateQts.value = _product['qts'];
+              controller.discount.text =
+                  _product['discount'].round().toString();
               controller.saleValuesFinal.value =
                   double.parse(_product['saleValue'].toString()) *
                       _product['qts'];
-              updateSalesOneProduct(_product,index);
+              updateSalesOneProduct(_product, index);
             },
             style: ElevatedButton.styleFrom(
                 primary: Colors.green.withOpacity(0.8),
@@ -405,7 +445,7 @@ class HomeView extends GetView<HomeController> {
     ));
   }
 
-  void updateSalesOneProduct(_product,index) {
+  void updateSalesOneProduct(_product, index) {
     Get.dialog(AlertDialog(
       actions: [
         TextButton(
@@ -419,10 +459,10 @@ class HomeView extends GetView<HomeController> {
           ),
         ),
         ElevatedButton(
-            onPressed: () async{
+            onPressed: () async {
               Get.back();
               loadingDesk();
-              var _response =  await controller.updateSale(_product,index);
+              var _response = await controller.updateSale(_product, index);
 
               dismiss();
             },
@@ -680,7 +720,6 @@ class HomeView extends GetView<HomeController> {
                 await 1.delay();
                 await controller.destroy(_product);
                 dismiss();
-
               },
               child: const Text(
                 "Confirmar",
@@ -711,7 +750,7 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  Widget priceSales() {
+  Widget priceSales(context) {
     return Column(
       children: <Widget>[
         Expanded(
@@ -808,7 +847,12 @@ class HomeView extends GetView<HomeController> {
                         ),
                       ),
                       Text(
-                        controller.infoProduct['discount'].toString() + " %",
+                        controller.infoProduct.containsKey('discount')
+                            ? controller.infoProduct['discount']
+                                    .round()
+                                    .toString() +
+                                ' %'
+                            : controller.discount.text + " %",
                         style: const TextStyle(color: Colors.white),
                       ),
                     ],
@@ -840,7 +884,7 @@ class HomeView extends GetView<HomeController> {
                   padding: const EdgeInsets.only(left: 10.0, right: 10, top: 8),
                   child: ElevatedButton(
                       onPressed: () {
-                        confirmSale();
+                        confirmSale(context);
                       },
                       style: ElevatedButton.styleFrom(
                           minimumSize: const Size(500, 60),
@@ -855,7 +899,7 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  void confirmSale() {
+  void confirmSale(context) {
     Get.dialog(
       AlertDialog(
         content: const SingleChildScrollView(
@@ -886,9 +930,17 @@ class HomeView extends GetView<HomeController> {
               style: ElevatedButton.styleFrom(
                   minimumSize: const Size(60, 45),
                   primary: const Color.fromRGBO(0, 103, 254, 1)),
-              onPressed: () {
-                controller.confirmSales();
+              onPressed: () async {
                 Get.back();
+                loadingDesk();
+                var _response = await controller.finishSale();
+                if (_response != true) {
+                  dismiss();
+                  error(context, _response);
+                  return;
+                }
+                dismiss();
+                success("Venda realizada com sucesso", context);
               },
               child: const Text(
                 "CONFIRMAR",
