@@ -45,7 +45,7 @@ class ProductsController extends GetxController {
       if (nextPageProduct != null) {
         Map _response;
         if (nextPageProduct!.isEmpty) {
-          _response = await product.index(search: searchProduct.text);
+          _response = await product.index(search: "product=" + searchProduct.text);
           nextPageProduct = _response.containsKey('links') ? _response['links']['next'] : null;
           total = _response.containsKey('met') ? _response['meta']['total'] : _response['data'].length;
         } else {

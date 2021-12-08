@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:extended_masked_text/extended_masked_text.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -6,16 +9,15 @@ import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:lustore/app/model/product.dart';
 import 'package:lustore/app/model/sale.dart';
-
-
+import 'package:lustore/app/theme/style.dart';
 
 class HomeController extends GetxController {
-  TextEditingController codeSaleOrClient = TextEditingController();
-  TextEditingController code = TextEditingController();
+  TextEditingController product = TextEditingController();
   TextEditingController client = TextEditingController();
   TextEditingController qts = TextEditingController();
   TextEditingController valueDiscount = TextEditingController();
   NumberFormat formatter = NumberFormat.simpleCurrency();
+  Product products = Product();
   Sale sale = Sale();
   MoneyMaskedTextController discount = MoneyMaskedTextController(
     initialValue: 0,
@@ -23,6 +25,7 @@ class HomeController extends GetxController {
     thousandSeparator: "",
     precision: 1,
   );
+  int? productId;
   final store = GetStorage();
   RxList allProductSales = [].obs;
   RxList resultSearchProductSaleExchangeAndReturn = [].obs;
@@ -33,44 +36,53 @@ class HomeController extends GetxController {
   RxDouble saleValuesFinal = 0.0.obs;
   RxDouble valueProduct = 0.0.obs;
   RxString image = "".obs;
-  RxString nameProduct = "".obs;
-  RxString codeProduct = "".obs;
-  RxString sizeProduct = "".obs;
+  RxMap infoProduct = {}.obs;
   RxMap productSelectExchange = {}.obs;
   RxInt updateQts = 1.obs;
 
-
-
   @override
-  void onInit() async{
+  void onInit() async {
     super.onInit();
-    await getSales();
     qts.text = "1";
+    await getSales();
+    await saveProducts();
+    Timer.periodic(
+        const Duration(minutes: 5), (Timer t) async => await saveProducts());
   }
 
   @override
-  void onClose() async{
+  void onClose() async {
     super.onClose();
     closeSale();
-
   }
 
-  Future getSales() async{
+  saveProducts() async {
+    Map _response = await products.index(search: "all=true");
+    store.write('product', _response['data']);
+  }
 
+  Future productCreateSale() async {
+    sale.client = client.text;
+    sale.salesman = store.read('email') ?? 'system';
+    sale.qts = int.parse(qts.text) < 1 ? 1 : int.parse(qts.text);
+    sale.product = Product(id: productId);
+    return await sale.store(sale);
+  }
+
+  Future getSales() async {
     Map _product = await sale.index();
-
     allProductSales.clear();
     allProductSales.addAll(_product["data"]);
-    //listSale(_product["data"]);
+    listSale(_product["data"]);
   }
 
-  closeSale() async{
-    if(store.read("sales") != null){
+  closeSale() async {
+    if (store.read("sales") != null) {
       var verified = await sale.destroy(sale);
       if (verified == true) {
         store.remove("sales");
         store.remove("client");
-      }else{
+      } else {
         throw Exception("error ao excluir os dados");
       }
     }
@@ -81,10 +93,11 @@ class HomeController extends GetxController {
     store.write("sales", allProductSales);
     discountProductView(allProductSales);
   }
-  valueDiscountAll(String value, String valueCost, {calc}){
+
+  valueDiscountAll(String value, String valueCost, {calc}) {
     var calcDiscount = double.parse(value) / 100;
     calcDiscount = (double.parse(valueCost)) * calcDiscount;
-    if(calc == true){
+    if (calc == true) {
       return (double.parse(valueCost) - calcDiscount);
     }
     saleValuesFinal.value = (double.parse(valueCost) - calcDiscount);
@@ -96,9 +109,8 @@ class HomeController extends GetxController {
     double _value = 0.0;
     for (var index in _product) {
       var calcDiscount = discountProductView(index);
-      _value =
-          _value + calcDiscount;
-      _qts = _qts + index["qts"] as int ;
+      _value = _value + calcDiscount;
+      _qts = _qts + index["qts"] as int;
       if (i == 0) {
         subTotal.value = calcDiscount;
       }
@@ -107,41 +119,22 @@ class HomeController extends GetxController {
     total.value = _value;
   }
 
-  discountProductView(_product){
-
+  discountProductView(_product) {
     var value = _product["saleValue"] * _product["qts"];
     var calcDiscount = _product['discount'] / 100;
     calcDiscount = value * calcDiscount;
     return (value - calcDiscount);
   }
 
-
-  void searchProduct() async {
-    await EasyLoading.show(
-      maskType: EasyLoadingMaskType.custom,
-    );
-    if (code.text.isEmpty || qts.text.isEmpty) {
-      await EasyLoading.dismiss();
-      return;
-    }
-    sale.product = Product(code: code.text,qts: int.parse(qts.text));
-    sale.client = client.text.toString();
-    var response = await sale.store(sale);
-
-    // if (response["result"].length != 0) {
-    //   store.remove("sales");
-    //   store.write("sales", response["result"]);
-    //   allProductSales.clear();
-    //   allProductSales.addAll(response["result"]);
-    //   store.write("client", client.text);
-    //   calcSaleNow();
-    // }else{
-    //   dialogSearch(response["error"]);
-    // }
-    await EasyLoading.dismiss();
+  Future<List<Product>> searchProduct(String _suggest) async {
+    List listProduct = store.read('product');
+    return listProduct.map((json) => Product.fromJson(json)).where((_product) {
+      final query = _suggest.toLowerCase();
+      return _product.product!.toLowerCase().contains(query);
+    }).toList();
   }
 
-  void dialogSearch(response){
+  void dialogSearch(response) {
     Get.defaultDialog(
       radius: 5,
       title: "Alerta",
@@ -154,37 +147,52 @@ class HomeController extends GetxController {
           shadowColor: Colors.grey.withOpacity(0.5),
           minimumSize: const Size(10, 40),
         ),
-        child: const Text("Confirmar",style: TextStyle(fontSize: 16),),
+        child: const Text(
+          "Confirmar",
+          style: TextStyle(fontSize: 16),
+        ),
       ),
     );
   }
 
-  void addDiscountInProduct() async{
-    await EasyLoading.show(
-      maskType: EasyLoadingMaskType.custom,
-    );
-
-    sale.product = Product(qts: updateQts.value);
-    sale.discount = double.parse(discount.text);
-    if(idSales.isEmpty){
-      await EasyLoading.dismiss();
-      return;
-    }
-    var response = await sale.update(sale,idSales);
-    if (response["result"].toString().isNotEmpty) {
-      store.remove("sales");
-      store.write("sales", response["result"]);
-      allProductSales.clear();
-      allProductSales.addAll(response["result"]);
-     // calcSaleNow();
-    }else{
-      dialogSearch(response["error"]);
-    }
-    await EasyLoading.dismiss();
+  Future addDiscountInProduct() async {
+    allProductSales.forEach((element) async {
+      int index = 0;
+      qts.text = element['qts'].toString();
+      await actionProductSale(element,index);
+      index++;
+    });
+    discount.text = '';
   }
 
-  void confirmSales() async{
+  Future updateSale(element,index) async{
+      return await actionProductSale(element,index);
+  }
 
+  Future actionProductSale(element,index) async {
+    sale.discount = double.parse(discount.text);
+    sale.salesman = store.read('email') ?? 'system';
+    sale.qts = updateQts.value < 1 ? 1 : updateQts.value;
+    sale.product = Product(id: element["id"]);
+    var _response =  await sale.update(sale, element["id"]);
+    if (_response == true) {
+      var _update = element;
+      _update["qts"] = updateQts.value;
+      _update['discount'] = sale.discount;
+      allProductSales[index] = _update;
+    }
+    return;
+  }
+
+  Future destroy(_product) async{
+    var _response = await sale.destroy(_product['id']);
+    if(_response == true){
+      allProductSales.remove(_product);
+      listSale(allProductSales);
+    }
+  }
+
+  void confirmSales() async {
     await EasyLoading.show(
       maskType: EasyLoadingMaskType.custom,
     );
@@ -198,13 +206,13 @@ class HomeController extends GetxController {
     await EasyLoading.dismiss();
   }
 
-  void discountAll() async{
+  void discountAll() async {
     await EasyLoading.show(
       maskType: EasyLoadingMaskType.custom,
     );
 
     sale.discount = double.parse(discount.text);
-    var response = await sale.update(sale,1);
+    var response = await sale.update(sale, 1);
     if (response["result"].length != 0) {
       store.remove("sales");
       store.write("sales", response["result"]);
@@ -216,7 +224,7 @@ class HomeController extends GetxController {
     await EasyLoading.dismiss();
   }
 
-  void deleteProduct(index,String id) async {
+  void deleteProduct(index, String id) async {
     await EasyLoading.show(
       maskType: EasyLoadingMaskType.custom,
     );
@@ -229,23 +237,28 @@ class HomeController extends GetxController {
     await EasyLoading.dismiss();
   }
 
-  void removeAll() async {
-    await EasyLoading.show(
-      maskType: EasyLoadingMaskType.custom,
-    );
+  Future removeAll() async {
+    allProductSales.forEach((element) async {
+      await loadingDesk();
+      var _response = await sale.destroy(element["id"]);
+      allProductSales.remove(element);
+      if (allProductSales.isEmpty) {
+        await dismiss();
+      }
+    });
+      }
 
-    var verified = await sale.destroy(sale);
-    if (verified == true) {
-      store.remove("sales");
-      store.remove("client");
-      client.text = "";
-      allProductSales.clear();
-      getAllSalesNow();
-    }
-    await EasyLoading.dismiss();
+  distributeInformation(_info) {
+    infoProduct.clear();
+    infoProduct.addAll(_info);
+    subTotal.value = valueDiscountAll(_info["discount"].toString(),
+        (_info["saleValue"] * _info["qts"]).toString(),
+        calc: true);
+    // if(controller.allProductSales[index]["image"] != null){
+    //   controller.image.value =
+    //       controller.allProductSales[index]["image"].toString();
+    // }
   }
-
-
 }
 // void exchangeAndReturn() async{
 //     await EasyLoading.show(

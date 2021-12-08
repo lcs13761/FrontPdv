@@ -12,7 +12,7 @@ abstract class Model {
   }
 
   Future<dynamic> index({search}) async {
-    String _search = search != null ? '?product=' + search : '';
+    String _search = search != null ? '?' + search : '';
     String token = await auth.refreshJwt();
     final response = await http.get(
       Uri.parse(url + action +  _search),

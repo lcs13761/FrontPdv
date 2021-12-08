@@ -24,15 +24,15 @@ class Product extends Model{
 
     Product.fromJson(Map<String,dynamic> json):
         id = json["id"],
-        code = json["code"],
+        code = json["code"].toString(),
         product = json["product"],
-        saleValue = json["saleValue"],
-        costValue = json["costValue"],
+        saleValue = double.tryParse(json["saleValue"].toString()),
+        costValue = double.tryParse(json["costValue"].toString()),
         description = json["description"],
-        size = json["size"],
+        size = json["size"].toString(),
         qts = json["qts"],
         image = json["image"],
-        category = json["category"];
+        category = Category.fromJson(json["category"]);
 
     Map<String,dynamic> toJson(){
       return {

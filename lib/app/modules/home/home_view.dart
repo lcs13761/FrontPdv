@@ -1,10 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:get/get.dart';
+import 'package:lustore/app/model/product.dart';
 import 'package:lustore/app/modules/sidebar/sidebar.dart';
+import 'package:lustore/app/theme/style.dart';
 import 'home_controller.dart';
-import '../../sidebar/sidebar.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -24,7 +26,6 @@ class HomeView extends GetView<HomeController> {
               Get.back();
               dialogDiscount();
             }
-
             if (event.isKeyPressed(LogicalKeyboardKey.f2)) {
               Get.back();
               confirmSale();
@@ -39,7 +40,7 @@ class HomeView extends GetView<HomeController> {
           children: <Widget>[
             sidebar.side("sale"),
             Expanded(
-              child: bodySales(context),
+              child: body(context),
             ),
             Container(
               height: 1000,
@@ -97,9 +98,9 @@ class HomeView extends GetView<HomeController> {
               style: ElevatedButton.styleFrom(
                   minimumSize: const Size(60, 45),
                   primary: const Color.fromRGBO(0, 103, 254, 1)),
-              onPressed: () {
-                controller.removeAll();
+              onPressed: () async {
                 Get.back();
+                await controller.removeAll();
               },
               child: const Text(
                 "CONFIRMAR",
@@ -149,69 +150,102 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  Widget bodySales(context) {
+  Widget body(context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(1),
-                spreadRadius: 0,
-                blurRadius: 1,
-                offset: const Offset(1, 0.0), // changes position of shadow
-              ),
-            ],
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          containerSearch(context),
+          titleListProduct(),
+          const Divider(height: 1),
+          Expanded(child: productsSale()),
+          footerSales(context),
+        ]);
+  }
+
+  Widget containerSearch(context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(1),
+            spreadRadius: 0,
+            blurRadius: 1,
+            offset: const Offset(1, 0.0), // changes position of shadow
           ),
-          padding:
-              const EdgeInsets.only(top: 30, left: 20, right: 25, bottom: 20),
-          child: Column(
+        ],
+      ),
+      padding: const EdgeInsets.only(top: 30, left: 20, right: 25, bottom: 20),
+      child: Column(
+        children: <Widget>[
+          Container(
+            child: textFieldSearch(
+                "Consumidor final", const Text("Cliente"), controller.client),
+          ),
+          Row(
             children: <Widget>[
-              Container(
-                child: textFieldSearch("Consumidor final",
-                    const Text("Cliente"), controller.client),
-              ),
-              Row(
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.only(right: 10.0),
-                    child: SizedBox(
-                      width: 130,
-                      child: textFieldSearch(
-                          "", const Text("Qts"), controller.qts, filter: [
+              Padding(
+                padding: const EdgeInsets.only(right: 10.0),
+                child: SizedBox(
+                  width: 130,
+                  child: textFieldSearch("", const Text("Qts"), controller.qts,
+                      filter: [
                         FilteringTextInputFormatter.allow(RegExp("[0-9]"))
                       ]),
-                    ),
-                  ),
-                  Expanded(
-                    child: textFieldSearch(
-                        "Pesquisa", const Icon(Icons.search), controller.code),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.only(left: 20, right: 20, top: 5),
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                          minimumSize: const Size(10, 50),
-                          primary: const Color.fromRGBO(0, 103, 254, 1)),
-                      onPressed: () async {
-                        controller.searchProduct();
-                      },
-                      child: const Text("Buscar"),
-                    ),
-                  ),
-                ],
+                ),
+              ),
+              Expanded(
+                child: autoComplete(context),
+              ),
+              Container(
+                margin: const EdgeInsets.only(left: 20, right: 20, top: 5),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(10, 50),
+                      primary: const Color.fromRGBO(0, 103, 254, 1)),
+                  onPressed: () async {
+                    loadingDesk();
+                    var _response = await controller.productCreateSale();
+                    if (_response == true) {
+                      await controller.getSales();
+                    } else {
+                      error(context,
+                          'Error, verifique ser o produto esta disponivel');
+                    }
+                    dismiss();
+                  },
+                  child: const Text("Adicionar"),
+                ),
               ),
             ],
           ),
-        ),
-        titleListProduct(),
-        const Divider(height: 1),
-        Expanded(child: resultSearch()),
-        footerSales(context),
-      ],
+        ],
+      ),
     );
+  }
+
+  Widget autoComplete(context) {
+    return TypeAheadFormField<Product?>(
+        textFieldConfiguration: TextFieldConfiguration(
+            controller: controller.product,
+            decoration: const InputDecoration(
+              hintText: "Pesquisa",
+              prefixIcon: Icon(Icons.search),
+            )),
+        onSuggestionSelected: (Product? suggestion) {
+          final _product = suggestion!;
+          controller.productId = _product.id!;
+          controller.product.text = _product.product!;
+        },
+        itemBuilder: (context, Product? suggestion) {
+          final _product = suggestion!;
+          return ListTile(
+            title: Text(_product.product!),
+          );
+        },
+        suggestionsCallback: (suggestion) async {
+          return await controller.searchProduct(suggestion);
+        });
   }
 
   Widget textFieldSearch(String hint, type, searchController, {filter}) {
@@ -228,7 +262,52 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  Widget resultSearch() {
+  Widget titleListProduct() {
+    return Container(
+      decoration: BoxDecoration(
+        color: colorBackgroundCard,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 0,
+            blurRadius: 4,
+            offset: const Offset(1, 3), // changes position of shadow
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.only(top: 15, bottom: 15),
+        child: Row(
+          children: <Widget>[
+            fieldTitle('ID'),
+            fieldImageTitle(),
+            fieldTitle('Produto'),
+            fieldTitle('Quantidade'),
+            fieldTitle('Valor'),
+            fieldTitle('Tamanho'),
+            fieldTitle('Action')
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget fieldTitle(text) {
+    return Expanded(
+        child: Text(
+      text,
+      textAlign: TextAlign.center,
+    ));
+  }
+
+  Widget fieldImageTitle() {
+    return const SizedBox(
+      width: 50,
+      child: Text(''),
+    );
+  }
+
+  Widget productsSale() {
     return Obx(
       () => ListView.separated(
         itemCount: controller.allProductSales.length,
@@ -239,183 +318,94 @@ class HomeView extends GetView<HomeController> {
         ),
         itemBuilder: (BuildContext context, int index) {
           var _product = controller.allProductSales[index];
-          return ListTile(
+          return InkWell(
+              highlightColor: Colors.white.withOpacity(0.8),
+              focusColor: Colors.white.withOpacity(0.8),
               onTap: () {
-             //    controller.discount.value = double.parse(
-             //        controller.allProductSales[index]["discount"].toString());
-             //    controller.subTotal.value = controller.valueDiscountAll(
-             //        controller.allProductSales[index]["discount"].toString(),
-             //        (controller.allProductSales[index]["saleValue"] *
-             //                controller.allProductSales[index]["qts"])
-             //            .toString(),
-             //        calc: true);
-             //    controller.nameProduct.value =
-             //        controller.allProductSales[index]["product"].toString();
-             // if(controller.allProductSales[index]["image"] != null){
-             //   controller.image.value =
-             //       controller.allProductSales[index]["image"].toString();
-             // }
-             //    controller.sizeProduct.value =
-             //        controller.allProductSales[index]["size"].toString();
-             //    controller.codeProduct.value =
-             //        controller.allProductSales[index]["code"].toString();
-             //    controller.productSelect.value = true;
+                controller.distributeInformation(_product);
               },
-              tileColor: Colors.white.withOpacity(0.8),
-              title: listProductInfo(index));
+              child: _productInfoSale(_product, index, context));
         },
       ),
     );
   }
 
-  Widget titleListProduct() {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xFFF5F5F5),
-        // boxShadow: [
-        //   BoxShadow(
-        //     color: Colors.white.withOpacity(0.8),
-        //     // changes position of shadow
-        //   ),
-        // ],
-      ),
-      height: 60,
-      padding: const EdgeInsets.only(left: 10),
-      margin: const EdgeInsets.only(top: 0.9),
-      child: StaggeredGridView.count(
-        crossAxisCount: 5,
-        mainAxisSpacing: 0,
-        crossAxisSpacing: 0,
-        children: <Widget>[
-          valuesBodySearch("Produto"),
-          valuesBodySearch("Quantidade"),
-          valuesBodySearch("Tamanho"),
-          valuesBodySearch("Preço"),
-        ],
-        staggeredTiles: const [
-          StaggeredTile.extent(1, 60),
-          StaggeredTile.extent(1, 60),
-          StaggeredTile.extent(1, 60),
-          StaggeredTile.extent(1, 60),
-          StaggeredTile.extent(1, 60),
-        ],
+  Widget _productInfoSale(_product, index, context) {
+    return Row(
+      children: <Widget>[
+        expandedFieldBody(index.toString()),
+        Container(
+          height: 50,
+          width: 50,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(2),
+            color: const Color.fromRGBO(31, 31, 31, 1.0),
+          ),
+          margin: const EdgeInsets.only(top: 5, bottom: 5),
+          child: Align(
+              alignment: Alignment.center,
+              child: Text(
+                _product['product']['product']
+                    .toString()
+                    .substring(0, 2)
+                    .toUpperCase(),
+                style: colorAndSizeWhite,
+              )),
+        ),
+        expandedFieldBody(_product['product']['product']),
+        expandedFieldBody(_product['qts'].toString()),
+        expandedFieldBody(controller.formatter
+            .format(controller.discountProductView(_product))),
+        expandedFieldBody(_product['product']['size'].toString()),
+        expandedActionButton(_product, index, context),
+      ],
+    );
+  }
+
+  Widget expandedFieldBody(text) {
+    return Expanded(
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
       ),
     );
   }
 
-  Widget listProductInfo(index) {
-    return SizedBox(
-      height: 60,
-      child: StaggeredGridView.count(
-        primary: false,
-        physics: const NeverScrollableScrollPhysics(),
-        crossAxisCount: 5,
-        mainAxisSpacing: 10,
-        crossAxisSpacing: 0,
-        children: <Widget>[
-          valuesBodySearch(
-              controller.allProductSales[index]["product"].toString()),
-          Padding(
-            padding: const EdgeInsets.only(left: 15.0),
-            child: valuesBodySearch(
-                controller.allProductSales[index]["qts"].toString()),
+  Widget expandedActionButton(_product, index, context) {
+    return Expanded(
+        child: Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Container(
+          margin: const EdgeInsets.only(right: 10),
+          child: ElevatedButton(
+            onPressed: () async {
+              controller.updateQts.value = _product['qts'];
+              controller.saleValuesFinal.value =
+                  double.parse(_product['saleValue'].toString()) *
+                      _product['qts'];
+              updateSalesOneProduct(_product,index);
+            },
+            style: ElevatedButton.styleFrom(
+                primary: Colors.green.withOpacity(0.8),
+                minimumSize: const Size(40, 45)),
+            child: const Icon(Icons.edit),
           ),
-          Padding(
-            padding: const EdgeInsets.only(left: 15.0),
-            child: valuesBodySearch(controller.allProductSales[index]["size"]),
-          ),
-          Container(
-            alignment: Alignment.centerLeft,
-            child: ListTile(
-              title: controller.allProductSales[index]["discount"] == 0
-                  ? Container(
-                      height: 1,
-                    )
-                  : Text(
-                      controller.formatter.format(
-                          controller.allProductSales[index]["saleValue"] *
-                              controller.allProductSales[index]["qts"]),
-                      style: const TextStyle(
-                          fontSize: 16.0,
-                          decoration: TextDecoration.lineThrough),
-                    ),
-              subtitle: controller.allProductSales[index]["discount"] == 0
-                  ? Container(
-                      alignment: Alignment.centerLeft,
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: valueContainerProduct(index),
-                    )
-                  : valueContainerProduct(index),
-            ),
-          ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Container(
-                margin: const EdgeInsets.only(right: 10),
-                child: ElevatedButton(
-                  onPressed: () async {
-                    controller.updateQts.value =
-                        controller.allProductSales[index]["qts"];
-                    updateSalesOneProduct(
-                      controller.allProductSales[index]["saleValue"].toString(),
-                    );
-                    controller.valueProduct.value =
-                      double.parse(controller.allProductSales[index]["saleValue"].toString());
-                    controller.saleValuesFinal.value =
-                        double.parse(controller.allProductSales[index]["saleValue"].toString());
-                    controller.discount.text = controller
-                        .allProductSales[index]["discount"]
-                        .toString();
-                    controller.idSales =
-                        controller.allProductSales[index]["id"].toString();
-                  },
-                  style: ElevatedButton.styleFrom(
-                      primary: Colors.green.withOpacity(0.8),
-                      minimumSize: const Size(40, 45)),
-                  child: const Icon(Icons.edit),
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  controller.deleteProduct(index,
-                      controller.allProductSales[index]["id"].toString());
-                },
-                style: ElevatedButton.styleFrom(
-                    primary: Colors.red, minimumSize: const Size(40, 45)),
-                child: const Icon(Icons.delete),
-              ),
-            ],
-          )
-        ],
-        staggeredTiles: const [
-          StaggeredTile.extent(1, 60),
-          StaggeredTile.extent(1, 60),
-          StaggeredTile.extent(1, 60),
-          StaggeredTile.extent(1, 60),
-          StaggeredTile.extent(1, 60),
-        ],
-      ),
-    );
+        ),
+        ElevatedButton(
+          onPressed: () async {
+            dialogDestroy(_product, context);
+          },
+          style: ElevatedButton.styleFrom(
+              primary: Colors.red, minimumSize: const Size(40, 45)),
+          child: const Icon(Icons.delete),
+        ),
+      ],
+    ));
   }
 
-  Widget valueContainerProduct(index) {
-    return Text(
-      controller.formatter.format(controller.valueDiscountAll(
-          controller.allProductSales[index]["discount"].toString(),
-          (controller.allProductSales[index]["saleValue"] *
-                  controller.allProductSales[index]["qts"])
-              .toString(),
-          calc: true)),
-      style: const TextStyle(
-        fontSize: 16.0,
-        color: Color.fromRGBO(0, 0, 0, 0.9),
-      ),
-    );
-  }
-
-  void updateSalesOneProduct(String value) {
+  void updateSalesOneProduct(_product,index) {
     Get.dialog(AlertDialog(
       actions: [
         TextButton(
@@ -429,15 +419,15 @@ class HomeView extends GetView<HomeController> {
           ),
         ),
         ElevatedButton(
-          onPressed: () {
-            controller.addDiscountInProduct();
-            Get.back();
-          },
-          style: ElevatedButton.styleFrom(
-            minimumSize: const Size(100, 50),
-          ),
-          child: const Text("Salvar"),
-        ),
+            onPressed: () async{
+              Get.back();
+              loadingDesk();
+              var _response =  await controller.updateSale(_product,index);
+
+              dismiss();
+            },
+            style: ElevatedButton.styleFrom(minimumSize: const Size(100, 50)),
+            child: const Text("Salvar"))
       ],
       title: const ListTile(
         title: Text("Detalhes"),
@@ -461,7 +451,7 @@ class HomeView extends GetView<HomeController> {
                   color: Colors.black.withOpacity(0.1),
                   borderRadius: const BorderRadius.all(Radius.circular(2))),
               padding: const EdgeInsets.only(top: 5, bottom: 5),
-              child: updateQtsSaleProduct(),
+              child: updateQtsSaleProduct(_product),
             ),
             Container(
               padding: const EdgeInsets.only(top: 5, bottom: 5),
@@ -484,7 +474,8 @@ class HomeView extends GetView<HomeController> {
                     child: Obx(
                       () => Text(
                         controller.formatter.format(
-                            double.parse(value) * controller.updateQts.value),
+                            double.parse(_product['saleValue'].toString()) *
+                                controller.updateQts.value),
                         textAlign: TextAlign.end,
                         style: const TextStyle(fontSize: 14),
                       ),
@@ -497,7 +488,7 @@ class HomeView extends GetView<HomeController> {
               margin: const EdgeInsets.only(top: 1),
               padding: const EdgeInsets.only(top: 2),
               color: Colors.black.withOpacity(0.1),
-              child: discountUnit(value),
+              child: discountUnit(_product['saleValue'].toString()),
             ),
             Container(
               padding: const EdgeInsets.only(top: 2, bottom: 5),
@@ -564,11 +555,11 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  Widget updateQtsSaleProduct() {
+  Widget updateQtsSaleProduct(_product) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
-        buttonPlusLess(Icons.remove),
+        buttonPlusLess(Icons.remove, _product),
         Container(
           height: 60,
           alignment: Alignment.center,
@@ -586,12 +577,12 @@ class HomeView extends GetView<HomeController> {
             ],
           ),
         ),
-        buttonPlusLess(Icons.add),
+        buttonPlusLess(Icons.add, _product),
       ],
     );
   }
 
-  Widget buttonPlusLess(IconData icon) {
+  Widget buttonPlusLess(IconData icon, _product) {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
@@ -602,10 +593,8 @@ class HomeView extends GetView<HomeController> {
           if (icon == Icons.remove && controller.updateQts > 1) {
             controller.updateQts.value--;
           }
-          controller.valueDiscountAll(
-              controller.discount.text,
-              (controller.valueProduct.value * controller.updateQts.value)
-                  .toString());
+          controller.valueDiscountAll(_product['discount'].toString(),
+              (_product['saleValue'] * controller.updateQts.value).toString());
         },
         child: Container(
             decoration: BoxDecoration(
@@ -620,18 +609,6 @@ class HomeView extends GetView<HomeController> {
               icon,
               size: 16,
             )),
-      ),
-    );
-  }
-
-  Widget valuesBodySearch(String text) {
-    return Container(
-      alignment: Alignment.centerLeft,
-      child: Text(
-        text,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        softWrap: false,
       ),
     );
   }
@@ -665,6 +642,57 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
+  void dialogDestroy(_product, context) {
+    Get.dialog(
+      AlertDialog(
+        content: const SingleChildScrollView(
+          padding: EdgeInsets.all(10),
+          child: Text(
+            "Deseja excluir o produto?",
+            style: TextStyle(
+              fontSize: 22,
+              letterSpacing: 1,
+            ),
+          ),
+        ),
+        actions: <Widget>[
+          Container(
+            margin: const EdgeInsets.only(bottom: 10),
+            child: TextButton(
+              onPressed: () {
+                Get.back();
+              },
+              child: const Text(
+                "Cancelar",
+                style: TextStyle(fontSize: 22),
+              ),
+            ),
+          ),
+          Container(
+            margin: const EdgeInsets.only(bottom: 10),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(60, 45),
+              ),
+              onPressed: () async {
+                Get.back();
+                loadingDesk();
+                await 1.delay();
+                await controller.destroy(_product);
+                dismiss();
+
+              },
+              child: const Text(
+                "Confirmar",
+                style: TextStyle(fontSize: 22),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget footerButton(String text, Widget icon, {action, context}) {
     return Expanded(
       child: Container(
@@ -683,43 +711,6 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-
-
-  Widget textFieldDialogExchangeAndReturn(String text, _controller) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.only(top: 8.0),
-          child: Text(
-            text,
-            textAlign: TextAlign.start,
-          ),
-        ),
-        TextField(
-          controller: _controller,
-        ),
-      ],
-    );
-  }
-
-  dataColumn(String _text) {
-    return DataColumn(
-      label: Text(
-        _text,
-        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-      ),
-    );
-  }
-
-  dataRow(String _text) {
-    return DataCell(
-      ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 250),
-      child: Text(_text),
-    ));
-  }
-
   Widget priceSales() {
     return Column(
       children: <Widget>[
@@ -729,7 +720,7 @@ class HomeView extends GetView<HomeController> {
             padding:
                 const EdgeInsets.only(left: 20, bottom: 30, top: 20, right: 10),
             child: Obx(() {
-              if (controller.productSelect.isFalse) {
+              if (controller.infoProduct.isEmpty) {
                 return const Text("");
               }
               return Column(
@@ -749,18 +740,9 @@ class HomeView extends GetView<HomeController> {
                   Padding(
                     padding: const EdgeInsets.only(bottom: 8.0),
                     child: Text(
-                      "Código: " + controller.codeProduct.toString(),
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.white,
-                        fontWeight: FontWeight.normal,
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
-                    child: Text(
-                      "Produto: " + controller.nameProduct.toString(),
+                      "Produto: " +
+                          controller.infoProduct['product']['product']
+                              .toString(),
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.normal,
@@ -769,7 +751,8 @@ class HomeView extends GetView<HomeController> {
                     ),
                   ),
                   Text(
-                    "Tamanho: " + controller.sizeProduct.toString(),
+                    "Tamanho: " +
+                        controller.infoProduct['product']['size'].toString(),
                     style: const TextStyle(
                       fontSize: 16,
                       color: Colors.white,
@@ -824,8 +807,8 @@ class HomeView extends GetView<HomeController> {
                               fontSize: 16),
                         ),
                       ),
-                      Text('',
-                        // controller.discount.value.round().toString() + " %",
+                      Text(
+                        controller.infoProduct['discount'].toString() + " %",
                         style: const TextStyle(color: Colors.white),
                       ),
                     ],
@@ -918,6 +901,40 @@ class HomeView extends GetView<HomeController> {
     );
   }
 }
+
+// Widget textFieldDialogExchangeAndReturn(String text, _controller) {
+//   return Column(
+//     crossAxisAlignment: CrossAxisAlignment.start,
+//     children: <Widget>[
+//       Padding(
+//         padding: const EdgeInsets.only(top: 8.0),
+//         child: Text(
+//           text,
+//           textAlign: TextAlign.start,
+//         ),
+//       ),
+//       TextField(
+//         controller: _controller,
+//       ),
+//     ],
+//   );
+// }
+
+// dataColumn(String _text) {
+//   return DataColumn(
+//     label: Text(
+//       _text,
+//       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+//     ),
+//   );
+// }
+//
+// dataRow(String _text) {
+//   return DataCell(ConstrainedBox(
+//     constraints: const BoxConstraints(maxWidth: 250),
+//     child: Text(_text),
+//   ));
+// }
 
 //void dialogExchangeAndReturn(context) {
 //     Get.dialog(AlertDialog(
